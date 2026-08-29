@@ -305,16 +305,24 @@ const ART = {
     <path d="M20 46h24" stroke-width="2"/>`),
   apple: S(`<path d="M32 22c6-6 20-2 18 10-2 11-11 20-18 20S16 43 14 32c-2-12 12-16 18-10z" fill="#F2606B"/>
     <path d="M32 22v-6" /><path d="M32 18c4-4 9-4 11-2-3 4-7 5-11 2z" fill="#7EC850"/>`),
-  banana: S(`<path d="M16 20c2 18 14 28 32 24-4-4-6-8-6-13 0-6-10-13-26-11z" fill="#FCD94B"/>
-    <path d="M16 20c-2 0-3 2-2 4" />`),
+  grape: S(`<path d="M32 14v9" stroke-width="3.4"/>
+    <path d="M32 17c4-6 11-7 15-4-3 6-10 8-15 4z" fill="#8ED45C"/>
+    <circle cx="23" cy="30" r="7.5" fill="#A88BC8"/>
+    <circle cx="32" cy="28" r="7.5" fill="#B79AD4"/>
+    <circle cx="41" cy="30" r="7.5" fill="#A88BC8"/>
+    <circle cx="27" cy="40" r="7.5" fill="#B79AD4"/>
+    <circle cx="37" cy="40" r="7.5" fill="#A88BC8"/>
+    <circle cx="32" cy="49" r="7.5" fill="#B79AD4"/>`),
   ice: S(`<path d="M22 30h20l-10 24z" fill="#E0B173"/>
     <circle cx="26" cy="24" r="9" fill="#FFC0CB"/><circle cx="38" cy="24" r="9" fill="#C6EFE0"/>
     <circle cx="32" cy="18" r="8" fill="#FFF2C2"/>`),
   juice: S(`<rect x="18" y="20" width="26" height="32" rx="4" fill="#FF8FA0"/>
     <rect x="22" y="26" width="18" height="12" rx="3" fill="#FFF6E0"/>
     <path d="M40 20l6-10" stroke-width="3"/>`),
-  snack: S(`<path d="M18 24h28l6-8v32l-6-8H18l-6 8V16z" fill="#8FD1F0"/>
-    <circle cx="26" cy="32" r="3" fill="#FFF6E0"/><circle cx="36" cy="32" r="3" fill="#FFF6E0"/>`),
+  snack: S(`<rect x="29.5" y="30" width="5" height="30" rx="2.5" fill="#FBF5E8"/>
+    <circle cx="32" cy="25" r="17" fill="#F7C6D4"/>
+    <path d="M32 25a2 2 0 012 2a4 4 0 01-4 4a6 6 0 01-6-6a8 8 0 018-8a10 10 0 0110 10a12 12 0 01-12 12"
+      fill="none" stroke="#E8899F" stroke-width="3.4" stroke-linecap="round"/>`),
   fish: S(`<path d="M14 32c8-12 26-12 34 0-8 12-26 12-34 0z" fill="#9BD6E8"/>
     <path d="M48 32l8-8v16z" fill="#6FB7CE"/><circle cx="24" cy="30" r="2" fill="#6B4F3A" stroke="none"/>`),
   egg: S(`<ellipse cx="32" cy="36" rx="15" ry="18" fill="#FFF6E0"/>`),
@@ -376,6 +384,12 @@ const ART = {
   porkCut: S(`<rect x="12" y="30" width="15" height="14" rx="5" fill="#FFB3C0"/>
     <rect x="30" y="20" width="15" height="14" rx="5" fill="#FFB3C0"/>
     <rect x="34" y="38" width="15" height="14" rx="5" fill="#FFB3C0"/>`),
+  onionMince: S(`<g fill="#EBD7EA">
+    <rect x="13" y="33" width="10" height="9" rx="3"/>
+    <rect x="26" y="28" width="10" height="9" rx="3"/>
+    <rect x="39" y="33" width="10" height="9" rx="3"/>
+    <rect x="19" y="43" width="10" height="9" rx="3"/>
+    <rect x="33" y="43" width="10" height="9" rx="3"/></g>`),
   chickenCut: S(`<rect x="12" y="30" width="15" height="14" rx="5" fill="#F5C79C"/>
     <rect x="30" y="20" width="15" height="14" rx="5" fill="#F5C79C"/>
     <rect x="34" y="38" width="15" height="14" rx="5" fill="#F5C79C"/>`),
@@ -423,11 +437,11 @@ const ART = {
 
 const LABEL = {
   carrot:"にんじん", potato:"じゃがいも", onion:"たまねぎ", pork:"ぶたにく", roux:"カレールー",
-  apple:"りんご", banana:"バナナ", ice:"アイス", juice:"ジュース", snack:"おかし",
+  apple:"りんご", grape:"ぶどう", ice:"アイス", juice:"ジュース", snack:"キャンディー",
   fish:"おさかな", egg:"たまご", milk:"ぎゅうにゅう",
   carrotCut:"にんじん", potatoCut:"じゃがいも", onionCut:"たまねぎ", porkCut:"ぶたにく",
   macaroni:"マカロニ", chicken:"とりにく", chickenCut:"とりにく", cheese:"チーズ", gratindish:"グラタンざら",
-  mince:"ひきにく", panko:"パンこ", ketchup:"ケチャップ", patty:"たね", hamburg:"ハンバーグ",
+  onionMince:"たまねぎ", mince:"ひきにく", panko:"パンこ", ketchup:"ケチャップ", patty:"たね", hamburg:"ハンバーグ",
   turner:"フライがえし",
   knife:"ほうちょう", pot:"おなべ", ladle:"おたま", lid:"ふた", water:"おみず",
   scoop:"しゃもじ", spoon:"スプーン", fork:"フォーク",
@@ -440,24 +454,25 @@ const CUT = { carrot:"carrotCut", potato:"potatoCut", onion:"onionCut", pork:"po
 /* くまシェフ */
 function bearSVG(mood="happy"){
   const eyes = mood==="happy"
-    ? `<circle cx="24.5" cy="38" r="3" fill="#6B4F3A" stroke="none"/>
-       <circle cx="39.5" cy="38" r="3" fill="#6B4F3A" stroke="none"/>
-       <circle cx="23.4" cy="37" r="1" fill="#FFF" stroke="none"/>
-       <circle cx="38.4" cy="37" r="1" fill="#FFF" stroke="none"/>`
-    : `<path d="M21.5 38q3-3 6 0M36.5 38q3-3 6 0" stroke-width="2.4"/>`;
+    ? `<circle cx="25" cy="43" r="2.9" fill="#6B4F3A" stroke="none"/>
+       <circle cx="39" cy="43" r="2.9" fill="#6B4F3A" stroke="none"/>
+       <circle cx="24" cy="42" r="1" fill="#FFF" stroke="none"/>
+       <circle cx="38" cy="42" r="1" fill="#FFF" stroke="none"/>`
+    : `<path d="M22 43q3-3 6 0M36 43q3-3 6 0" stroke-width="2.4"/>`;
   return S(`
-    <circle cx="16" cy="23" r="8.5" fill="#C79A6A"/><circle cx="48" cy="23" r="8.5" fill="#C79A6A"/>
-    <circle cx="16" cy="23" r="4.2" fill="#E7C5A0" stroke="none"/>
-    <circle cx="48" cy="23" r="4.2" fill="#E7C5A0" stroke="none"/>
-    <circle cx="32" cy="40" r="21" fill="#DDB98C"/>
-    <path d="M13 24a19 9 0 0138 0c0 4-9 4-19 4s-19 0-19-4z" fill="#FBF5E8"/>
-    <path d="M17 18a8 8 0 0111-6 9.5 9.5 0 018 0 8 8 0 0111 6c0 5-7 7-15 7s-15-2-15-7z" fill="#FBF5E8"/>
-    ${eyes}
-    <ellipse cx="32" cy="47" rx="10.5" ry="7.5" fill="#FBF5E8"/>
-    <ellipse cx="32" cy="43.5" rx="3" ry="2.2" fill="#6B4F3A" stroke="none"/>
-    <path d="M32 46v1.6M32 48q-3 3-4.5-.6M32 48q3 3 4.5-.6" stroke-width="1.8"/>
-    <circle cx="17" cy="47" r="3.6" fill="#F0B6BC" stroke="none"/>
-    <circle cx="47" cy="47" r="3.6" fill="#F0B6BC" stroke="none"/>`);
+    <circle cx="14" cy="32" r="8" fill="#C79A6A"/><circle cx="50" cy="32" r="8" fill="#C79A6A"/>
+    <circle cx="13" cy="32" r="3.8" fill="#E7C5A0" stroke="none"/>
+    <circle cx="51" cy="32" r="3.8" fill="#E7C5A0" stroke="none"/>
+    <circle cx="32" cy="45" r="18" fill="#DDB98C"/>
+    <path d="M16 31C9 26 9 16 17 13c1-7 7-11 15-11s14 4 15 11c8 3 8 13 1 18z" fill="#FBF5E8"/>
+    <path d="M24 13c-2 5-2 11-1 17M40 13c2 5 2 11 1 17" stroke="#E3D8C0" stroke-width="2.2"/>
+    <rect x="14" y="28" width="36" height="9" rx="4.5" fill="#FBF5E8"/>
+    <ellipse cx="32" cy="51" rx="10" ry="7" fill="#FBF5E8" stroke="#D9B58C" stroke-width="1.3"/>
+    <ellipse cx="32" cy="47.5" rx="2.9" ry="2.1" fill="#6B4F3A" stroke="none"/>
+    <path d="M32 50v1.5M32 51.5q-2.8 2.8-4.2-.6M32 51.5q2.8 2.8 4.2-.6" stroke-width="1.8"/>
+    <circle cx="17" cy="51" r="3.4" fill="#F0B6BC" stroke="none"/>
+    <circle cx="47" cy="51" r="3.4" fill="#F0B6BC" stroke="none"/>
+    ${eyes}`);
 }
 
 /* ---------------------------------------------------------------
@@ -471,7 +486,7 @@ const CURRY_STAGES = [
     steps:[{
       say:"かいものリストの ものを ぜんぶ かごに いれてね",
       shuffle:true,
-      tray:["carrot","potato","onion","pork","roux","apple","banana","ice","juice","snack","fish","egg"],
+      tray:["carrot","potato","onion","pork","roux","apple","grape","ice","juice","snack","fish","egg"],
       need:["carrot","potato","onion","pork","roux"],
       hit:id=>{ state.cart.push(id); }
     }],
@@ -601,7 +616,7 @@ const GRATIN_STAGES = [
     steps:[{
       say:"かいものリストの ものを ぜんぶ かごに いれてね",
       shuffle:true,
-      tray:["macaroni","milk","onion","chicken","cheese","apple","banana","ice","juice","snack","fish","egg"],
+      tray:["macaroni","milk","onion","chicken","cheese","apple","grape","ice","juice","snack","fish","egg"],
       need:["macaroni","milk","onion","chicken","cheese"],
       hit:id=>{ state.cart.push(id); }
     }],
@@ -712,7 +727,7 @@ const HAMBURG_STAGES = [
     steps:[{
       say:"かいものリストの ものを ぜんぶ かごに いれてね",
       shuffle:true,
-      tray:["mince","onion","egg","panko","ketchup","apple","banana","ice","juice","snack","fish","milk"],
+      tray:["mince","onion","egg","panko","ketchup","apple","grape","ice","juice","snack","fish","milk"],
       need:["mince","onion","egg","panko","ketchup"],
       hit:id=>{ state.cart.push(id); }
     }],
@@ -723,8 +738,8 @@ const HAMBURG_STAGES = [
     intro:"ステージ 2 ・ キッチン",
     introText:"こねて、まるめて、ジューッと やこう！",
     steps:[
-      { say:"たまねぎを まないたに のせて きろう！",
-        mode:"chop", chops:3,
+      { say:"たまねぎを まないたに のせて、みじんぎりに しよう！",
+        mode:"chop", chops:10, mince:true, cutAs:{onion:"onionMince"},
         tray:["onion","mince","egg","panko","ketchup"],
         need:["onion"],
         hit:id=>{ state.cut.push(id); },
@@ -733,8 +748,8 @@ const HAMBURG_STAGES = [
 
       { say:"ボウルに ざいりょうを ぜんぶ いれよう！",
         vessel:"bowl", listTitle:"いれる<br>もの",
-        tray:["mince","onionCut","egg","panko","ketchup"],
-        need:["mince","onionCut","egg","panko"],
+        tray:["mince","onionMince","egg","panko","ketchup"],
+        need:["mince","onionMince","egg","panko"],
         hit:()=>{ state.pot.food++; },
         wrong:{ ketchup:"ケチャップは さいごに かけるよ" } },
 
@@ -973,8 +988,10 @@ function allVoiceLines(){
         if(st.waitSay) add(st.waitSay, r.name + "／" + stg.name);
         if(st.mode === "chop"){
           st.need.forEach(id=>{
-            add(`${LABEL[id]}を ${st.chops||3}かい タップして トントン！`, r.name + "／きる");
-            add(`${LABEL[id]} きれたね！`, r.name + "／きる");
+            add(st.mince
+              ? `${LABEL[id]}を ${st.chops||3}かい タップして みじんぎりに しよう！`
+              : `${LABEL[id]}を ${st.chops||3}かい タップして トントン！`, r.name + "／きる");
+            add(st.mince ? `${LABEL[id]} みじんぎり できたね！` : `${LABEL[id]} きれたね！`, r.name + "／きる");
           });
         }
         if(st.mode === "stir"){
@@ -1169,8 +1186,29 @@ function sceneKitchen(){
 }
 
 /* ==== まないたシーン（のせる → トントン きる） ==== */
-function chopPieces(id, cuts, chops){
+const MINCE_COL = { onion:"#EBD7EA", carrot:"#F5893C", potato:"#D9A566",
+  pork:"#FFB3C0", chicken:"#F5C79C" };
+
+/* みじんぎり：たたくほど こまかく なって いく */
+function mincePile(id, cuts, chops){
+  const col = MINCE_COL[id] || "#EBD7EA";
+  const n = Math.min(18, 3 + Math.round((cuts-2) * 2.2));
+  const sz = Math.max(5.8, 9.5 - cuts*0.42);
+  let out = "";
+  for(let i=0;i<n;i++){
+    const ang = i * 2.399, r = 3 + 3.1*Math.sqrt(i);
+    const x = 32 + Math.cos(ang)*r*1.5 - sz/2;
+    const y = 38 + Math.sin(ang)*r*0.85 - sz/2;
+    out += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${sz.toFixed(1)}"
+      height="${(sz*0.9).toFixed(1)}" rx="${(sz*0.3).toFixed(1)}" fill="${col}"
+      stroke-width="1.7"/>`;
+  }
+  return out;
+}
+
+function chopPieces(id, cuts, chops, mince){
   const inner = ART[id].replace(/<svg[^>]*>/,"").replace(/<\/svg>/,"");
+  if(mince && cuts >= 3) return mincePile(id, cuts, chops);
   if(cuts >= chops){                      // きりおわり
     const c = ART[CUT[id]].replace(/<svg[^>]*>/,"").replace(/<\/svg>/,"");
     return c;
@@ -1187,7 +1225,8 @@ function chopPieces(id, cuts, chops){
 
 function sceneChop(){
   const b = state.act, st = currentStep(), chops = st.chops || 3;
-  const prep = state.cut.map((cid,i)=> iconGroup(CUT[cid], 50 + i*60, 22, .55)).join("");
+  const prep = state.cut.map((cid,i)=>
+    iconGroup((st.cutAs && st.cutAs[cid]) || CUT[cid], 50 + i*60, 22, .55)).join("");
   const hint = b.cuts < chops ? `
     <circle cx="160" cy="204" r="74" fill="none" stroke="#FF9EB5" stroke-width="4"
       stroke-dasharray="9 12" opacity=".95">
@@ -1222,7 +1261,7 @@ function sceneChop(){
     ${prep}
     <g transform="translate(160 202) scale(1.45) translate(-32 -32)"
       stroke="#6B4F3A" stroke-width="2.6" stroke-linejoin="round"
-      stroke-linecap="round" fill="none">${chopPieces(b.id, b.cuts, chops)}</g>
+      stroke-linecap="round" fill="none">${chopPieces(b.id, b.cuts, chops, st.mince)}</g>
     ${hint}${knife}
     <circle class="chopTarget" cx="160" cy="204" r="88" fill="#FFF" opacity="0"/>
   </svg>`;
@@ -1737,7 +1776,9 @@ trayEl.addEventListener("click", e=>{
     fly(card);
     drawScene();
     const msg = st.mode === "chop"
-      ? `${LABEL[id]}を ${total}かい タップして トントン！`
+      ? (st.mince
+          ? `${LABEL[id]}を ${total}かい タップして みじんぎりに しよう！`
+          : `${LABEL[id]}を ${total}かい タップして トントン！`)
       : stirPrompt(st, total);
     bubbleEl.textContent = msg; say(msg);
     return;
@@ -1759,7 +1800,7 @@ sceneEl.addEventListener("click", e=>{
     drawScene(); act.anim = false;
     const left = act.total - act.cuts;
     if(left > 0){ bubbleEl.textContent = `トントン！ あと ${left}かい`; return; }
-    finishAct(`${LABEL[act.id]} きれたね！`);
+    finishAct(st.mince ? `${LABEL[act.id]} みじんぎり できたね！` : `${LABEL[act.id]} きれたね！`);
     return;
   }
 
