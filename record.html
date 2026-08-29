@@ -85,6 +85,8 @@ label{font-size:14px;font-weight:700;display:inline-flex;gap:6px;align-items:cen
       <label><input type="checkbox" id="onlyMain" checked> たいせつな セリフだけ</label>
     </div>
     <div class="bar"><i id="bar"></i></div>
+    <div class="meta">マイクの おおきさ</div>
+    <div class="bar" style="height:8px"><i id="level" style="background:var(--pink)"></i></div>
     <div class="meta" id="group"></div>
     <div class="line" id="text">…</div>
     <div class="meta" id="file"></div>
@@ -120,16 +122,16 @@ label{font-size:14px;font-weight:700;display:inline-flex;gap:6px;align-items:cen
       <li>スマホで つかう ゲームなら、<b>おなじ スマホ</b>で ろくおんすると かくじつに ならせます</li>
     </ol>
     <p class="meta">
-      iPhone/iPad の Safari で ろくおんすると m4a、パソコンの Chrome では webm で ほぞんされます。
-      どちらも ゲームが じどうで さがしますが、iPhone は webm を ならせないので、
-      iPhone で あそぶなら iPhone で ろくおんして ください。
+      ろくおんは WAV（16kHz モノラル）で ほぞんされます。iPhone・Android・パソコン
+      どれで ろくおんしても、どの きかいでも ならせます。
+      ろくおんの あと、じどうで さいせいされるので おとが でるか かくにんして ください。
+      「0.0びょう」や おとが でない ときは、マイクの きょかを かくにんして もういちど。
     </p>
   </div>
 </div>
 
 <iframe id="game" src="index.html" style="display:none" title="game"></iframe>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
 /* ============ セリフの よみこみ（index.html から） ============ */
 let LINES = [], view = [], idx = 0, clips = {}, stream = null, rec = null, chunks = [];
@@ -147,9 +149,10 @@ function openDB(){
     r.onerror = () => res();
   });
 }
-function putClip(id, blob, ext){
+function putClip(id, bytes, ext, sec){
   if(!db) return;
-  db.transaction("clips","readwrite").objectStore("clips").put({blob:blob, ext:ext}, id);
+  db.transaction("clips","readwrite").objectStore("clips")
+    .put({buf:bytes.buffer, ext:ext, sec:sec}, id);
 }
 function delAll(){
   if(!db) return;
@@ -163,7 +166,8 @@ function loadClips(){
     req.onsuccess = e => {
       const c = e.target.result;
       if(!c) return res();
-      clips[c.key] = c.value;
+      const v = c.value;
+      if(v && v.buf) clips[c.key] = { bytes:new Uint8Array(v.buf), ext:v.ext||"wav", sec:v.sec||0 };
       c.continue();
     };
     req.onerror = () => res();
@@ -182,7 +186,9 @@ function draw(){
   if(!l) return;
   $("#group").textContent = l.group;
   $("#text").textContent = l.text;
-  $("#file").textContent = "ファイルめい： " + l.id + "." + (clips[l.id] ? clips[l.id].ext : "m4a / webm");
+  const c = clips[l.id];
+  $("#file").textContent = "ファイルめい： " + l.id + ".wav"
+    + (c ? "　（" + c.sec.toFixed(1) + "びょう / " + Math.round(c.bytes.length/1024) + "KB）" : "");
   const done = view.filter(x=>clips[x.id]).length;
   $("#counter").textContent = (idx+1) + " / " + view.length + "　（ろくおんずみ " + done + "）";
   $("#bar").querySelector ? 0 : 0;
@@ -205,56 +211,117 @@ function drawList(){
   };
 }
 
-/* ============ マイク ============ */
+/* ============ マイク（WAVで ちょくせつ ろくおん） ============ */
+const RATE = 16000;
+let actx = null, srcNode = null, proc = null, recording = false, buffers = [], level = 0;
+
 $("#mic").onclick = async ()=>{
   try{
-    stream = await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true, noiseSuppression:true}});
-    $("#micState").textContent = "つかえます！ ろくおん できます";
+    stream = await navigator.mediaDevices.getUserMedia({
+      audio:{ echoCancellation:true, noiseSuppression:true, autoGainControl:true }});
+    actx = new (window.AudioContext || window.webkitAudioContext)();
+    await actx.resume();
+    srcNode = actx.createMediaStreamSource(stream);
+    proc = actx.createScriptProcessor(4096, 1, 1);
+    const mute = actx.createGain();
+    mute.gain.value = 0;
+    proc.onaudioprocess = e=>{
+      const d = e.inputBuffer.getChannelData(0);
+      let peak = 0;
+      for(let i=0;i<d.length;i++){ const v = Math.abs(d[i]); if(v>peak) peak = v; }
+      level = peak;
+      if(recording) buffers.push(new Float32Array(d));
+    };
+    srcNode.connect(proc); proc.connect(mute); mute.connect(actx.destination);
+    $("#micState").textContent = "つかえます！（" + actx.sampleRate + "Hz）";
     $("#recBtn").disabled = false;
+    setInterval(()=>{ $("#level").style.width = Math.min(100, level*160) + "%"; }, 100);
   }catch(err){
     $("#micState").textContent = "マイクが つかえません（" + err.name + "）";
   }
 };
 
-function pickMime(){
-  const list = ["audio/mp4","audio/webm;codecs=opus","audio/webm","audio/ogg"];
-  for(const m of list) if(window.MediaRecorder && MediaRecorder.isTypeSupported(m)) return m;
-  return "";
+/* --- おとの しょり --- */
+function joinBuf(chunks){
+  const len = chunks.reduce((n,c)=>n+c.length, 0);
+  const all = new Float32Array(len);
+  let off = 0;
+  chunks.forEach(c=>{ all.set(c, off); off += c.length; });
+  return all;
 }
-function extOf(mime){
-  if(mime.indexOf("mp4") >= 0) return "m4a";
-  if(mime.indexOf("ogg") >= 0) return "ogg";
-  return "webm";
+function downsample(all, from, to){
+  if(to >= from) return all;
+  const ratio = from / to, out = new Float32Array(Math.floor(all.length / ratio));
+  for(let i=0;i<out.length;i++){
+    const s = Math.floor(i*ratio), e = Math.min(all.length, Math.floor((i+1)*ratio));
+    let sum = 0, n = 0;
+    for(let j=s;j<e;j++){ sum += all[j]; n++; }
+    out[i] = n ? sum/n : 0;
+  }
+  return out;
+}
+function trimAndNormalize(a, rate){
+  let peak = 0;
+  for(let i=0;i<a.length;i++){ const v = Math.abs(a[i]); if(v>peak) peak = v; }
+  if(peak < 0.01) return a;                       /* ほとんど むおん */
+  const th = Math.max(0.012, peak*0.06), pad = Math.floor(rate*0.12);
+  let s = 0, e = a.length-1;
+  while(s < a.length && Math.abs(a[s]) < th) s++;
+  while(e > s && Math.abs(a[e]) < th) e--;
+  s = Math.max(0, s-pad); e = Math.min(a.length-1, e+pad);
+  const cut = a.slice(s, e+1), g = Math.min(3, 0.92/peak);
+  for(let i=0;i<cut.length;i++) cut[i] *= g;
+  return cut;
+}
+function encodeWav(a, rate){
+  const buf = new ArrayBuffer(44 + a.length*2), v = new DataView(buf);
+  const w = (o,t)=>{ for(let i=0;i<t.length;i++) v.setUint8(o+i, t.charCodeAt(i)); };
+  w(0,"RIFF"); v.setUint32(4, 36+a.length*2, true); w(8,"WAVE");
+  w(12,"fmt "); v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,1,true);
+  v.setUint32(24,rate,true); v.setUint32(28,rate*2,true);
+  v.setUint16(32,2,true); v.setUint16(34,16,true);
+  w(36,"data"); v.setUint32(40, a.length*2, true);
+  let o = 44;
+  for(let i=0;i<a.length;i++){
+    const x = Math.max(-1, Math.min(1, a[i]));
+    v.setInt16(o, x<0 ? x*0x8000 : x*0x7FFF, true);
+    o += 2;
+  }
+  return new Uint8Array(buf);
 }
 
 function toggleRec(){
-  if(!stream) return;
-  if(rec && rec.state === "recording"){ rec.stop(); return; }
-  const mime = pickMime();
-  chunks = [];
-  rec = mime ? new MediaRecorder(stream, {mimeType:mime}) : new MediaRecorder(stream);
-  const ext = extOf(rec.mimeType || mime);
-  rec.ondataavailable = e => { if(e.data.size) chunks.push(e.data); };
-  rec.onstop = ()=>{
-    const blob = new Blob(chunks, {type: rec.mimeType || mime});
-    const l = view[idx];
-    clips[l.id] = {blob:blob, ext:ext};
-    putClip(l.id, blob, ext);
+  if(!actx) return;
+  if(recording){                                   /* ていし */
+    recording = false;
     $("#recBtn").classList.remove("on");
     $("#recBtn").textContent = "● ろくおん";
+    const raw = joinBuf(buffers);
+    buffers = [];
+    if(raw.length < actx.sampleRate*0.15){
+      $("#micState").textContent = "みじかすぎます。もういちど ろくおんして ください";
+      return;
+    }
+    const small = trimAndNormalize(downsample(raw, actx.sampleRate, RATE), RATE);
+    const bytes = encodeWav(small, RATE);
+    const l = view[idx];
+    clips[l.id] = { bytes:bytes, ext:"wav", sec: small.length / RATE };
+    putClip(l.id, bytes, "wav", clips[l.id].sec);
     draw();
-    const a = new Audio(URL.createObjectURL(blob));
-    a.play().catch(()=>{});
-    a.onended = ()=>{ if(idx < view.length-1){ idx++; draw(); } };
-  };
-  rec.start();
+    const a2 = new Audio(URL.createObjectURL(new Blob([bytes], {type:"audio/wav"})));
+    a2.play().catch(()=>{});
+    a2.onended = ()=>{ if(idx < view.length-1){ idx++; draw(); } };
+    return;
+  }
+  buffers = [];                                    /* かいし */
+  recording = true;
   $("#recBtn").classList.add("on");
   $("#recBtn").textContent = "■ ストップ";
 }
 $("#recBtn").onclick = toggleRec;
 $("#playBtn").onclick = ()=>{
   const c = clips[view[idx].id];
-  if(c) new Audio(URL.createObjectURL(c.blob)).play().catch(()=>{});
+  if(c) new Audio(URL.createObjectURL(new Blob([c.bytes], {type:"audio/wav"}))).play().catch(()=>{});
 };
 $("#prevBtn").onclick = ()=>{ if(idx>0){ idx--; draw(); } };
 $("#nextBtn").onclick = ()=>{ if(idx<view.length-1){ idx++; draw(); } };
@@ -265,32 +332,68 @@ document.addEventListener("keydown", e=>{
   if(e.code === "ArrowLeft"){ $("#prevBtn").click(); }
 });
 
-/* ============ ZIP ============ */
-$("#zipBtn").onclick = async ()=>{
-  const ids = Object.keys(clips);
-  if(!ids.length){ alert("まだ ろくおんが ありません"); return; }
-  if(typeof JSZip === "undefined"){
-    alert("ZIPが つかえないので 1つずつ ダウンロードします。voice フォルダに on.txt という からの ファイルも つくって ください。");
-    ids.forEach(id=>{
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(clips[id].blob);
-      a.download = id + "." + clips[id].ext;
-      a.click();
-    });
-    return;
+/* ============ ZIP（がいぶライブラリ なしで つくる） ============ */
+const CRC_T = (()=>{
+  const t = new Uint32Array(256);
+  for(let n=0;n<256;n++){
+    let c = n;
+    for(let k=0;k<8;k++) c = (c & 1) ? (0xEDB88320 ^ (c>>>1)) : (c>>>1);
+    t[n] = c >>> 0;
   }
-  const zip = new JSZip(), folder = zip.folder("voice");
-  folder.file("on.txt", "このフォルダに こえの ファイルが あります");
-  ids.forEach(id => folder.file(id + "." + clips[id].ext, clips[id].blob));
-  const out = await zip.generateAsync({type:"blob"});
+  return t;
+})();
+function crc32(u8){
+  let c = 0xFFFFFFFF;
+  for(let i=0;i<u8.length;i++) c = CRC_T[(c ^ u8[i]) & 0xFF] ^ (c>>>8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+function makeZip(files){                 /* files: [{name, data(Uint8Array)}] */
+  const enc = new TextEncoder(), parts = [], central = [];
+  let offset = 0;
+  files.forEach(f=>{
+    const name = enc.encode(f.name), crc = crc32(f.data), size = f.data.length;
+    const lh = new Uint8Array(30 + name.length), lv = new DataView(lh.buffer);
+    lv.setUint32(0, 0x04034b50, true);
+    lv.setUint16(4, 20, true); lv.setUint16(6, 0x0800, true);   /* UTF-8 */
+    lv.setUint16(8, 0, true);                                    /* むあっしゅく */
+    lv.setUint32(14, crc, true); lv.setUint32(18, size, true); lv.setUint32(22, size, true);
+    lv.setUint16(26, name.length, true);
+    lh.set(name, 30);
+    parts.push(lh, f.data);
+
+    const ch = new Uint8Array(46 + name.length), cv = new DataView(ch.buffer);
+    cv.setUint32(0, 0x02014b50, true);
+    cv.setUint16(4, 20, true); cv.setUint16(6, 20, true); cv.setUint16(8, 0x0800, true);
+    cv.setUint16(10, 0, true);
+    cv.setUint32(16, crc, true); cv.setUint32(20, size, true); cv.setUint32(24, size, true);
+    cv.setUint16(28, name.length, true);
+    cv.setUint32(42, offset, true);
+    ch.set(name, 46);
+    central.push(ch);
+    offset += lh.length + size;
+  });
+  const cdSize = central.reduce((n,c)=>n+c.length, 0);
+  const end = new Uint8Array(22), ev = new DataView(end.buffer);
+  ev.setUint32(0, 0x06054b50, true);
+  ev.setUint16(8, files.length, true); ev.setUint16(10, files.length, true);
+  ev.setUint32(12, cdSize, true); ev.setUint32(16, offset, true);
+  return new Blob([...parts, ...central, end], {type:"application/zip"});
+}
+
+$("#zipBtn").onclick = ()=>{
+  const ids = Object.keys(clips).filter(id=>clips[id] && clips[id].bytes.length > 100);
+  if(!ids.length){ alert("まだ ろくおんが ありません"); return; }
+  const files = [{name:"voice/on.txt",
+                  data:new TextEncoder().encode("このフォルダに こえの ファイルが あります")}];
+  ids.forEach(id => files.push({name:"voice/" + id + ".wav", data:clips[id].bytes}));
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(out);
+  a.href = URL.createObjectURL(makeZip(files));
   a.download = "voice.zip";
   a.click();
 };
 $("#clearBtn").onclick = ()=>{
   if(!confirm("ろくおんを ぜんぶ けしますか？")) return;
-  clips = {}; delAll(); draw(); drawList(); draw();
+  clips = {}; delAll(); rebuild();
 };
 
 /* ============ きどう ============ */
