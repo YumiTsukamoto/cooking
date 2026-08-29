@@ -903,10 +903,16 @@ function say(text){
   }
   const a = document.createElement("audio");
   a.preload = "auto";
+  /* Mac で かいとうすると だくてんが 2もじに わかれる ことが あるので
+     りょうほうの かきかたで さがします（NFC と NFD） */
+  const names = [id, id.normalize ? id.normalize("NFD") : id]
+    .filter((v,i,arr)=>arr.indexOf(v) === i);
   VOICE_EXT.forEach(ext=>{
-    const src = document.createElement("source");
-    src.src = "voice/" + encodeURIComponent(id) + "." + ext;
-    a.appendChild(src);
+    names.forEach(n=>{
+      const src = document.createElement("source");
+      src.src = "voice/" + encodeURIComponent(n) + "." + ext;
+      a.appendChild(src);
+    });
   });
   curAudio = a;
   const pr = a.play();
