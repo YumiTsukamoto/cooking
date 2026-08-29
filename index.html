@@ -12,17 +12,18 @@
 /* ========== デザイントークン ==========
    どうぶつの森ふうの「やさしい木と草」パレット */
 :root{
-  --grass:#8ED45C;
-  --grass-dark:#5FA83C;
-  --cream:#FFF6E0;
-  --cream-2:#FFE9BC;
-  --wood:#D8A165;
-  --wood-dark:#A9713F;
-  --ink:#5A4632;
-  --pink:#FF9EB5;
-  --sky:#BFE9F5;
-  --shadow:rgba(90,70,50,.22);
-  --r:26px;
+  --grass:#A9C88C;
+  --grass-2:#96B978;
+  --grass-dark:#7FA35F;
+  --cream:#F7F0E1;
+  --cream-2:#EFE3C9;
+  --wood:#C2A07A;
+  --wood-dark:#8A6647;
+  --ink:#6B4F3A;
+  --pink:#F0B6BC;
+  --sky:#C9E4EF;
+  --shadow:rgba(107,79,58,.20);
+  --r:24px;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
@@ -32,11 +33,8 @@ body{
   font-weight:800;
   color:var(--ink);
   background:var(--grass);
-  background-image:
-    radial-gradient(circle at 12% 22%, rgba(255,255,255,.28) 0 7px, transparent 8px),
-    radial-gradient(circle at 62% 68%, rgba(255,255,255,.22) 0 5px, transparent 6px),
-    radial-gradient(circle at 88% 32%, rgba(255,255,255,.18) 0 9px, transparent 10px);
-  background-size:180px 180px,140px 140px,220px 220px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cg fill='%23B7D69C'%3E%3Cpath d='M30 24c14 4 19 18 13 30-12 5-25-2-29-14C10 28 20 22 30 24z'/%3E%3Cpath d='M112 92c13 4 18 17 12 28-11 5-24-2-27-13-3-10 6-17 15-15z'/%3E%3Cpath d='M120 26c9 9 7 21-3 27-10 1-18-8-16-18 2-9 12-13 19-9z'/%3E%3Cpath d='M46 116c10 8 9 20-1 26-10 2-18-7-16-17 2-9 11-13 17-9z'/%3E%3C/g%3E%3C/svg%3E");
+  background-size:170px 170px;
   overflow:hidden;
   user-select:none;
 }
@@ -61,8 +59,8 @@ header{
 .leaf{width:26px;height:26px;opacity:.35;transition:.3s}
 .leaf.on{opacity:1;transform:scale(1.12)}
 .iconbtn{
-  width:42px;height:42px;border:none;border-radius:50%;
-  background:var(--cream);box-shadow:0 3px 0 var(--wood-dark);
+  width:42px;height:42px;border:3px solid var(--wood-dark);border-radius:50%;
+  background:var(--cream);box-shadow:0 3px 0 rgba(107,79,58,.35);
   font-size:19px;line-height:1;cursor:pointer;color:var(--ink);
   display:grid;place-items:center;
 }
@@ -78,14 +76,18 @@ header{
 @keyframes bob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-5px) rotate(2deg)}}
 .bubble{
   position:relative;flex:1;
-  background:var(--cream);border-radius:20px;
-  padding:12px 14px;font-size:17px;line-height:1.45;
-  box-shadow:0 4px 0 var(--wood-dark);
+  background:var(--cream);border:3px solid var(--wood-dark);border-radius:16px;
+  padding:11px 14px;font-size:17px;line-height:1.45;
+  box-shadow:0 3px 0 rgba(107,79,58,.22);
   min-height:56px;display:flex;align-items:center;
 }
 .bubble::before{
-  content:"";position:absolute;left:-9px;top:50%;margin-top:-9px;
-  border:9px solid transparent;border-right-color:var(--cream);
+  content:"";position:absolute;left:-10px;top:50%;margin-top:-8px;
+  border:8px solid transparent;border-right-color:var(--wood-dark);
+}
+.bubble::after{
+  content:"";position:absolute;left:-5px;top:50%;margin-top:-6px;
+  border:6px solid transparent;border-right-color:var(--cream);
 }
 .bubble.wiggle{animation:wig .4s}
 @keyframes wig{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
@@ -93,8 +95,8 @@ header{
 /* ---------- つかう ざいりょう リスト ---------- */
 #needbar{
   flex:0 0 auto;display:none;align-items:center;justify-content:center;gap:5px;
-  background:var(--cream);border-radius:18px;
-  box-shadow:0 4px 0 var(--wood-dark);
+  background:var(--cream);border:3px solid var(--wood-dark);border-radius:16px;
+  box-shadow:0 3px 0 rgba(107,79,58,.25);
   padding:5px 8px;margin-bottom:8px;
 }
 #needbar b{font-size:12px;color:var(--wood-dark);margin-right:2px;line-height:1.15;text-align:center}
@@ -111,8 +113,9 @@ header{
 #scene{
   flex:1 1 auto;min-height:0;
   background:var(--cream);
+  border:3px solid var(--wood-dark);
   border-radius:var(--r);
-  box-shadow:0 6px 0 var(--wood-dark);
+  box-shadow:0 4px 0 rgba(107,79,58,.28);
   overflow:hidden;position:relative;
   display:flex;
 }
@@ -141,8 +144,9 @@ header{
   flex:0 0 auto;
   margin-top:8px;
   background:var(--wood);
+  border:3px solid var(--wood-dark);
   border-radius:var(--r);
-  box-shadow:0 6px 0 var(--wood-dark);
+  box-shadow:0 4px 0 rgba(107,79,58,.3);
   padding:10px;
   display:grid;
   grid-template-columns:repeat(4,1fr);
@@ -150,8 +154,8 @@ header{
   max-height:40dvh;overflow:auto;
 }
 .card{
-  background:var(--cream);border:none;border-radius:18px;
-  box-shadow:0 4px 0 rgba(0,0,0,.16);
+  background:var(--cream);border:2.5px solid var(--wood-dark);border-radius:16px;
+  box-shadow:0 3px 0 rgba(107,79,58,.35);
   padding:6px 2px 4px;cursor:pointer;
   display:flex;flex-direction:column;align-items:center;gap:1px;
   font:inherit;color:var(--ink);font-size:12px;
@@ -192,27 +196,28 @@ header{
   position:absolute;inset:0;z-index:50;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:14px;padding:22px;text-align:center;
-  background:rgba(94,168,60,.94);
+  background:rgba(150,185,120,.95);
   animation:fade .35s;
 }
 @keyframes fade{from{opacity:0}}
 .overlay.hide{display:none}
 .plank{
-  background:var(--cream);border-radius:24px;
-  box-shadow:0 7px 0 var(--wood-dark);
+  background:var(--cream);border:3px solid var(--wood-dark);border-radius:20px;
+  box-shadow:0 4px 0 rgba(107,79,58,.3);
   padding:18px 22px;max-width:420px;
 }
 .plank h1{margin:0;font-size:clamp(26px,7vw,38px);line-height:1.2}
 .plank h2{margin:0;font-size:clamp(20px,5.6vw,27px)}
 .plank p{margin:8px 0 0;font-size:15px;font-weight:700;line-height:1.6}
 .big{
-  border:none;border-radius:999px;padding:15px 34px;
-  font:inherit;font-size:20px;color:#fff;cursor:pointer;
-  background:var(--pink);box-shadow:0 6px 0 #D96C86;
+  border:3px solid var(--wood-dark);border-radius:999px;padding:13px 30px;
+  font:inherit;font-size:19px;color:#FFF6E6;cursor:pointer;
+  background:#B98A5E;box-shadow:0 4px 0 rgba(107,79,58,.5);
+  text-shadow:0 1px 0 rgba(107,79,58,.4);
 }
-.big:active{transform:translateY(5px);box-shadow:none}
-.big.green{background:var(--grass-dark);box-shadow:0 6px 0 #3E7A26}
-.big.wood{background:#C98240;box-shadow:0 6px 0 #96591F}
+.big:active{transform:translateY(4px);box-shadow:none}
+.big.green{background:#8FAE6E}
+.big.wood{background:#A9784C}
 .overlay svg.hero{width:min(56vw,210px);height:auto}
 .row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 .small{font-size:16px;padding:12px 22px}
@@ -229,6 +234,20 @@ header{
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <filter id="felt" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="3" seed="9" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="2.6"
+      xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+  <filter id="feltS" x="-14%" y="-14%" width="128%" height="128%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.32" numOctaves="2" seed="4" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="0.9"
+      xChannelSelector="R" yChannelSelector="G"/>
+    <feDropShadow dx="0" dy="0.6" stdDeviation="0.5" flood-color="#6B4F3A" flood-opacity=".35"/>
+  </filter>
+</defs></svg>
+
 <div id="app">
   <header>
     <div class="leafbar" id="leafbar"></div>
@@ -258,8 +277,8 @@ header{
    1. イラスト（すべて手描きSVG）
    --------------------------------------------------------------- */
 const S = (inner, extra="") =>
-  `<svg viewBox="0 0 64 64" ${extra} xmlns="http://www.w3.org/2000/svg"
-     stroke="#5A4632" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"
+  `<svg viewBox="0 0 64 64" ${extra} xmlns="http://www.w3.org/2000/svg" filter="url(#feltS)"
+     stroke="#6B4F3A" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"
      fill="none">${inner}</svg>`;
 
 const ART = {
@@ -297,7 +316,7 @@ const ART = {
   snack: S(`<path d="M18 24h28l6-8v32l-6-8H18l-6 8V16z" fill="#8FD1F0"/>
     <circle cx="26" cy="32" r="3" fill="#FFF6E0"/><circle cx="36" cy="32" r="3" fill="#FFF6E0"/>`),
   fish: S(`<path d="M14 32c8-12 26-12 34 0-8 12-26 12-34 0z" fill="#9BD6E8"/>
-    <path d="M48 32l8-8v16z" fill="#6FB7CE"/><circle cx="24" cy="30" r="2" fill="#5A4632" stroke="none"/>`),
+    <path d="M48 32l8-8v16z" fill="#6FB7CE"/><circle cx="24" cy="30" r="2" fill="#6B4F3A" stroke="none"/>`),
   egg: S(`<ellipse cx="32" cy="36" rx="15" ry="18" fill="#FFF6E0"/>`),
   milk: S(`<path d="M20 24h24v28H20z" fill="#FFF6E0"/><path d="M20 24l6-10h12l6 10" fill="#F2F2F2"/>
     <circle cx="32" cy="38" r="6" fill="#8FD1F0"/>`),
@@ -336,7 +355,7 @@ const ART = {
     <path d="M26 32q6 5 12 0" stroke="#DE8E7C" stroke-width="2.6"/>`),
   hamburg: S(`<ellipse cx="32" cy="40" rx="23" ry="14" fill="#6E4222"/>
     <ellipse cx="32" cy="35" rx="23" ry="14" fill="#96602F"/>
-    <path d="M20 32l8 6M32 30l8 6" stroke="#5A3A20" stroke-width="3"/>`),
+    <path d="M20 32l8 6M32 30l8 6" stroke="#7A5230" stroke-width="3"/>`),
   turner: S(`<path d="M6 24h30a4 4 0 014 4v10a4 4 0 01-4 4H6a4 4 0 01-4-4V28a4 4 0 014-4z" fill="#DDE6EA"/>
     <path d="M12 28v10M22 28v10M32 28v10" stroke="#9FB0B9" stroke-width="2.6"/>
     <rect x="40" y="29" width="22" height="8" rx="4" fill="#8A5A34"/>`),
@@ -395,8 +414,8 @@ const ART = {
       text-anchor="middle" fill="#C48BB0" stroke="none">さとう</text>`),
   salt: S(`<path d="M20 26h24v22a6 6 0 01-6 6H26a6 6 0 01-6-6z" fill="#DFF4FB"/>
     <path d="M22 26a10 10 0 0120 0" fill="#95A3AE"/>
-    <circle cx="28" cy="22" r="1.4" fill="#5A4632" stroke="none"/>
-    <circle cx="36" cy="22" r="1.4" fill="#5A4632" stroke="none"/>`),
+    <circle cx="28" cy="22" r="1.4" fill="#6B4F3A" stroke="none"/>
+    <circle cx="36" cy="22" r="1.4" fill="#6B4F3A" stroke="none"/>`),
 
   leaf: S(`<path d="M32 8c16 6 22 22 16 36-14 6-30-2-34-16C10 16 20 10 32 8z" fill="#8ED45C"/>
     <path d="M20 44C26 30 34 20 44 14"/>`)
@@ -421,20 +440,24 @@ const CUT = { carrot:"carrotCut", potato:"potatoCut", onion:"onionCut", pork:"po
 /* くまシェフ */
 function bearSVG(mood="happy"){
   const eyes = mood==="happy"
-    ? `<circle cx="25" cy="38" r="2.6" fill="#5A4632" stroke="none"/>
-       <circle cx="39" cy="38" r="2.6" fill="#5A4632" stroke="none"/>`
-    : `<path d="M22 38q3-3 6 0M36 38q3-3 6 0" stroke-width="2.6"/>`;
+    ? `<circle cx="24.5" cy="38" r="3" fill="#6B4F3A" stroke="none"/>
+       <circle cx="39.5" cy="38" r="3" fill="#6B4F3A" stroke="none"/>
+       <circle cx="23.4" cy="37" r="1" fill="#FFF" stroke="none"/>
+       <circle cx="38.4" cy="37" r="1" fill="#FFF" stroke="none"/>`
+    : `<path d="M21.5 38q3-3 6 0M36.5 38q3-3 6 0" stroke-width="2.4"/>`;
   return S(`
-    <circle cx="17" cy="24" r="8" fill="#C89B6E"/><circle cx="47" cy="24" r="8" fill="#C89B6E"/>
-    <circle cx="32" cy="40" r="20" fill="#E0BB8C"/>
-    <path d="M14 24a18 10 0 0136 0c0 4-8 4-18 4s-18 0-18-4z" fill="#FFF6E0"/>
-    <path d="M18 18a8 8 0 0110-6 9 9 0 018 0 8 8 0 0110 6c0 5-6 7-14 7s-14-2-14-7z" fill="#FFF6E0"/>
+    <circle cx="16" cy="23" r="8.5" fill="#C79A6A"/><circle cx="48" cy="23" r="8.5" fill="#C79A6A"/>
+    <circle cx="16" cy="23" r="4.2" fill="#E7C5A0" stroke="none"/>
+    <circle cx="48" cy="23" r="4.2" fill="#E7C5A0" stroke="none"/>
+    <circle cx="32" cy="40" r="21" fill="#DDB98C"/>
+    <path d="M13 24a19 9 0 0138 0c0 4-9 4-19 4s-19 0-19-4z" fill="#FBF5E8"/>
+    <path d="M17 18a8 8 0 0111-6 9.5 9.5 0 018 0 8 8 0 0111 6c0 5-7 7-15 7s-15-2-15-7z" fill="#FBF5E8"/>
     ${eyes}
-    <ellipse cx="32" cy="46" rx="10" ry="7.5" fill="#FFF6E0"/>
-    <ellipse cx="32" cy="42" rx="3.2" ry="2.4" fill="#5A4632" stroke="none"/>
-    <path d="M32 45v2M32 47q-4 4-6-1M32 47q4 4 6-1" stroke-width="2.2"/>
-    <circle cx="18" cy="46" r="3.4" fill="#FFB3C0" stroke="none"/>
-    <circle cx="46" cy="46" r="3.4" fill="#FFB3C0" stroke="none"/>`);
+    <ellipse cx="32" cy="47" rx="10.5" ry="7.5" fill="#FBF5E8"/>
+    <ellipse cx="32" cy="43.5" rx="3" ry="2.2" fill="#6B4F3A" stroke="none"/>
+    <path d="M32 46v1.6M32 48q-3 3-4.5-.6M32 48q3 3 4.5-.6" stroke-width="1.8"/>
+    <circle cx="17" cy="47" r="3.6" fill="#F0B6BC" stroke="none"/>
+    <circle cx="47" cy="47" r="3.6" fill="#F0B6BC" stroke="none"/>`);
 }
 
 /* ---------------------------------------------------------------
@@ -977,7 +1000,7 @@ window.allVoiceLines = allVoiceLines;
 function iconGroup(id, x, y, scale){
   const inner = ART[id].replace(/<svg[^>]*>/,"").replace(/<\/svg>/,"");
   return `<g transform="translate(${x} ${y}) scale(${scale})"
-    stroke="#5A4632" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"
+    stroke="#6B4F3A" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"
     fill="none">${inner}</g>`;
 }
 
@@ -985,26 +1008,27 @@ function sceneShop(){
   const list = STAGES[0].steps[0].need.map(id=>
     `<li class="${state.cart.includes(id)?'got':''}">${ART[id]}<span>${LABEL[id]}</span></li>`).join("");
   const items = state.cart.map((id,i)=>
-    iconGroup(id, 156 + (i%3)*40, i<3 ? 148 : 110, .62)).join("");
+    iconGroup(id, 146 + i*27, 136, .55)).join("");
   return `
   <div class="shoplist"><h3>かいものリスト</h3><ul>${list}</ul></div>
   <svg viewBox="0 0 320 340" preserveAspectRatio="xMidYMid meet">
-    <rect width="320" height="340" fill="#FFF6E0"/>
-    <g stroke="#5A4632" stroke-width="3" stroke-linejoin="round" fill="none">
-      <path d="M156 10v16M234 10v16" stroke-width="4"/>
-      <rect x="138" y="24" width="114" height="40" rx="12" fill="#D8A165"/>
-      <text x="195" y="52" font-size="21" text-anchor="middle" fill="#FFF6E0"
+    <rect width="320" height="340" fill="#F3EADA"/>
+    <g stroke="#6B4F3A" stroke-width="3" stroke-linejoin="round" fill="none">
+      <path d="M158 8v16M234 8v16" stroke-width="4"/>
+      <rect x="140" y="22" width="112" height="40" rx="12" fill="#C2A07A"/>
+      <text x="196" y="50" font-size="21" text-anchor="middle" fill="#FBF5E8"
         stroke="none" font-weight="800">スーパー</text>
-      <rect x="0" y="268" width="320" height="72" fill="#EFD9AE" stroke="none"/>
-      <path d="M0 268h320" stroke-width="4"/>
+      <rect x="0" y="250" width="320" height="18" rx="6" fill="#A8814F" stroke="none"/>
+      <rect x="0" y="268" width="320" height="72" fill="#C2996B" stroke="none"/>
+      <path d="M0 250h320M0 268h320M104 268v72M236 268v72" stroke-width="3"/>
+      <path d="M166 166a54 40 0 0188 0" stroke-width="7" stroke-linecap="round"/>
     </g>
     ${items}
-    <g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round" fill="none">
-      <path d="M148 170h136l-16 66h-104z" fill="#8FD1F0"/>
-      <path d="M158 188h116M164 212h104" stroke="#5FA0BC" stroke-width="3"/>
-      <path d="M148 170l-10-18h-18" stroke-width="5" stroke-linecap="round"/>
-      <circle cx="176" cy="252" r="11" fill="#5A4632"/>
-      <circle cx="252" cy="252" r="11" fill="#5A4632"/>
+    <g stroke="#6B4F3A" stroke-width="3.2" stroke-linejoin="round" fill="none">
+      <path d="M144 182h134l-13 58a10 10 0 01-10 8H167a10 10 0 01-10-8z" fill="#E0C89A"/>
+      <path d="M150 200h122M154 220h114" stroke="#C2A070" stroke-width="3"/>
+      <path d="M178 184v62M210 184v64M242 184v62" stroke="#C2A070" stroke-width="3"/>
+      <rect x="136" y="166" width="150" height="18" rx="9" fill="#D3B683"/>
     </g>
   </svg>`;
 }
@@ -1022,7 +1046,7 @@ function sceneKitchen(){
     const a2 = i*90 * Math.PI/180;
     const bx = 160 + Math.cos(a2)*24 - 10, by = 178 + Math.sin(a2)*16 - 8;
     bits += `<rect x="${bx.toFixed(1)}" y="${by.toFixed(1)}" width="20" height="16" rx="5"
-      fill="${col}" stroke="#5A4632" stroke-width="2.6"/>`;
+      fill="${col}" stroke="#6B4F3A" stroke-width="2.6"/>`;
   }
   const spin = mixing ? (act.count - (act.anim?1:0))*120 : 0;
   const spinAnim = (mixing && act.anim) ? `<animateTransform attributeName="transform"
@@ -1049,15 +1073,15 @@ function sceneKitchen(){
   const fire = (p.fire && vessel !== "bowl") ? flame(112) + flame(152) + flame(192) : "";
   const burner = vessel === "bowl" ? "" :
     `<rect x="95" y="230" width="130" height="13" rx="6" fill="#8A939B"
-       stroke="#5A4632" stroke-width="3.4"/>`;
+       stroke="#6B4F3A" stroke-width="3.4"/>`;
 
   /* --- いれもの（なべ・ボウル・フライパン） --- */
   let vesselG;
   if(vessel === "bowl"){
     const mix = p.food>0 ? `<ellipse cx="160" cy="180" rx="${30+p.food*6}"
-        ry="${10+p.food*1.5}" fill="#F0A79B" stroke="#5A4632" stroke-width="3"/>` : "";
+        ry="${10+p.food*1.5}" fill="#F0A79B" stroke="#6B4F3A" stroke-width="3"/>` : "";
     vesselG = `
-      <g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round" fill="none">
+      <g stroke="#6B4F3A" stroke-width="3.4" stroke-linejoin="round" fill="none">
         <path d="M100 158h120l-14 56a22 22 0 01-21 16h-50a22 22 0 01-21-16z" fill="#EAF2F5"/>
         <ellipse cx="160" cy="158" rx="60" ry="16" fill="#FFFDF8"/>
         ${mix}<g transform="translate(0 8)">${stew}</g>
@@ -1066,15 +1090,15 @@ function sceneKitchen(){
   }else if(vessel === "pan"){
     const patty = p.patty ? `
       <ellipse cx="160" cy="192" rx="36" ry="16" fill="${p.cooked?"#6E4222":"#DE8E7C"}"
-        stroke="#5A4632" stroke-width="3.4"/>
+        stroke="#6B4F3A" stroke-width="3.4"/>
       <ellipse cx="160" cy="187" rx="36" ry="16" fill="${p.cooked?"#96602F":"#F2B39E"}"
-        stroke="#5A4632" stroke-width="3.4"/>
-      ${p.cooked ? `<path d="M142 182l10 8M160 180l10 8" stroke="#5A3A20" stroke-width="3.4"/>` : ""}` : "";
+        stroke="#6B4F3A" stroke-width="3.4"/>
+      ${p.cooked ? `<path d="M142 182l10 8M160 180l10 8" stroke="#7A5230" stroke-width="3.4"/>` : ""}` : "";
     const lid = p.lid ? `<path d="M98 178a62 30 0 01124 0z" fill="#95A3AE"/>
       <path d="M160 148v10" stroke-width="5"/>
       <circle cx="160" cy="144" r="8" fill="#D8A165"/>` : "";
     vesselG = `
-      <g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round" fill="none">
+      <g stroke="#6B4F3A" stroke-width="3.4" stroke-linejoin="round" fill="none">
         <path d="M98 178h124l-9 30a22 22 0 01-21 14h-64a22 22 0 01-21-14z" fill="#6E7B87"/>
         <ellipse cx="160" cy="178" rx="62" ry="17" fill="#4E5A63"/>
         ${patty}
@@ -1083,12 +1107,12 @@ function sceneKitchen(){
         ${lid}
       </g>`;
   }else{
-    const lid = p.lid ? `<g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round">
+    const lid = p.lid ? `<g stroke="#6B4F3A" stroke-width="3.4" stroke-linejoin="round">
         <path d="M98 146a62 30 0 01124 0z" fill="#95A3AE"/>
         <path d="M160 116v10" stroke-width="5"/>
         <circle cx="160" cy="112" r="8" fill="#D8A165"/></g>` : "";
     vesselG = `
-      <g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round" fill="none">
+      <g stroke="#6B4F3A" stroke-width="3.4" stroke-linejoin="round" fill="none">
         <path d="M105 144h110v52a22 22 0 01-22 22h-66a22 22 0 01-22-22z" fill="#6E7B87"/>
         <path d="M112 154h96v40c0 9-6 13-15 13h-66c-9 0-15-4-15-13z" fill="${soup}" stroke="none"/>
         ${stew}${bubbles}
@@ -1104,7 +1128,7 @@ function sceneKitchen(){
       type="rotate" values="0;-22;18;0" dur=".5s" repeatCount="1"/>` : "";
   const ladleY = vessel === "bowl" ? 130 : 116;
   const ladle = mixing ? `<g transform="translate(196 ${ladleY})"><g>${swing}
-      <g transform="scale(1.5) translate(-30 -10)" stroke="#5A4632" stroke-width="2.6"
+      <g transform="scale(1.5) translate(-30 -10)" stroke="#6B4F3A" stroke-width="2.6"
         stroke-linejoin="round" stroke-linecap="round" fill="none">${ladleInner}</g>
     </g></g>` : "";
   const hintY = vessel === "bowl" ? 176 : 172;
@@ -1117,8 +1141,8 @@ function sceneKitchen(){
       fill="#FFF" opacity="0"/>` : "";
 
   return `<svg viewBox="0 0 320 340" preserveAspectRatio="xMidYMid meet">
-    <rect width="320" height="340" fill="#FFF6E0"/>
-    <g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round" fill="none">
+    <rect width="320" height="340" fill="#F3EADA"/>
+    <g stroke="#6B4F3A" stroke-width="3.4" stroke-linejoin="round" fill="none">
       <rect x="104" y="14" width="112" height="72" rx="10" fill="#BFE9F5"/>
       <circle cx="140" cy="42" r="12" fill="#FFF" stroke="none"/>
       <circle cx="154" cy="46" r="9" fill="#FFF" stroke="none"/>
@@ -1126,10 +1150,12 @@ function sceneKitchen(){
       <rect x="96" y="86" width="128" height="11" rx="5" fill="#D8A165"/>
     </g>
     ${steam}
-    <g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round" fill="none">
-      <rect x="0" y="244" width="320" height="96" fill="#D8A165" stroke="none"/>
-      <rect x="0" y="236" width="320" height="10" rx="5" fill="#A9713F" stroke="none"/>
+    <g stroke="#6B4F3A" stroke-width="3.4" stroke-linejoin="round" fill="none">
+      <rect x="0" y="244" width="320" height="96" fill="#C2996B" stroke="none"/>
+      <rect x="0" y="236" width="320" height="10" rx="5" fill="#A8814F" stroke="none"/>
       <path d="M0 236h320" stroke-width="3"/>
+      <path d="M0 290h320" stroke="#A8814F" stroke-width="3"/>
+      <path d="M78 246v44M188 290v50M258 246v44" stroke="#A8814F" stroke-width="3"/>
       <rect x="14" y="216" width="78" height="20" rx="9" fill="#E6BE85"/>
       <path d="M92 226h10" stroke-width="6" stroke-linecap="round"/>
       <rect x="250" y="212" width="48" height="24" rx="7" fill="#E08B62"/>
@@ -1170,7 +1196,7 @@ function sceneChop(){
   const knifeInner = ART.knife.replace(/<svg[^>]*>/,"").replace(/<\/svg>/,"");
   const knife = `<g transform="translate(160 108)">
       <g class="knife${b.anim?' go':''}">
-        <g transform="rotate(40) translate(-32 -30) scale(1.6)" stroke="#5A4632" stroke-width="2.6"
+        <g transform="rotate(40) translate(-32 -30) scale(1.6)" stroke="#6B4F3A" stroke-width="2.6"
           stroke-linejoin="round" stroke-linecap="round" fill="none">${knifeInner}</g>
       </g></g>`;
 
@@ -1183,19 +1209,19 @@ function sceneChop(){
       <clipPath id="cl3_1"><rect x="-20" y="26.7" width="104" height="14.6"/></clipPath>
       <clipPath id="cl3_2"><rect x="-20" y="41.3" width="104" height="42.7"/></clipPath>
     </defs>
-    <rect width="320" height="340" fill="#FFF6E0"/>
-    <g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round" fill="none">
-      <rect x="24" y="16" width="272" height="46" rx="10" fill="#DDE6EA"/>
+    <rect width="320" height="340" fill="#F3EADA"/>
+    <g stroke="#6B4F3A" stroke-width="3.4" stroke-linejoin="round" fill="none">
+      <rect x="24" y="16" width="272" height="46" rx="10" fill="#E8DFC9"/>
       <rect x="14" y="62" width="292" height="11" rx="5" fill="#D8A165"/>
-      <rect x="0" y="268" width="320" height="72" fill="#D8A165" stroke="none"/>
-      <rect x="0" y="260" width="320" height="10" rx="5" fill="#A9713F" stroke="none"/>
+      <rect x="0" y="268" width="320" height="72" fill="#C2996B" stroke="none"/>
+      <rect x="0" y="260" width="320" height="10" rx="5" fill="#8A6647" stroke="none"/>
       <path d="M0 260h320" stroke-width="3"/>
       <rect x="26" y="142" width="264" height="120" rx="22" fill="#E6BE85"/>
       <path d="M290 182h16" stroke-width="7" stroke-linecap="round"/>
     </g>
     ${prep}
     <g transform="translate(160 202) scale(1.45) translate(-32 -32)"
-      stroke="#5A4632" stroke-width="2.6" stroke-linejoin="round"
+      stroke="#6B4F3A" stroke-width="2.6" stroke-linejoin="round"
       stroke-linecap="round" fill="none">${chopPieces(b.id, b.cuts, chops)}</g>
     ${hint}${knife}
     <circle class="chopTarget" cx="160" cy="204" r="88" fill="#FFF" opacity="0"/>
@@ -1233,12 +1259,12 @@ function cupboardSVG(items, cupOn, anim){
   const slot = [[14,62,34,82],[54,62,74,82],[94,62,114,82],[34,116,54,136],[78,116,98,136]];
   const inside = items.map((id,i)=>
     pickItem(id, slot[i][0], slot[i][1], .62, slot[i][2], slot[i][3], cupOn)).join("");
-  const doorFace = (x,knob) => `<g stroke="#5A4632" stroke-width="3.2" stroke-linejoin="round">
+  const doorFace = (x,knob) => `<g stroke="#6B4F3A" stroke-width="3.2" stroke-linejoin="round">
       <rect x="${x}" y="42" width="61" height="130" rx="6" fill="#D8A165"/>
       <rect x="${x+8}" y="52" width="45" height="110" rx="5" fill="#CFE8F2"/>
       <circle cx="${knob}" cy="107" r="4.5" fill="#FFF6E0"/></g>`;
   return `
-    <g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round" fill="none">
+    <g stroke="#6B4F3A" stroke-width="3.4" stroke-linejoin="round" fill="none">
       <rect x="8" y="26" width="130" height="150" rx="10" fill="#B98352"/>
       <rect x="2" y="18" width="142" height="16" rx="7" fill="#A9713F"/>
       <rect x="12" y="42" width="122" height="130" rx="6" fill="#F6E7C8"/>
@@ -1273,7 +1299,7 @@ function sceneTable(){
         to="-62 198 120" dur=".55s" fill="freeze"/>` : "";
   const lidStatic = (cookOn && !anim) ? ' transform="rotate(-62 198 120)"' : "";
   const riceInside = cookOn ? `
-    <g stroke="#5A4632" stroke-width="3.2" stroke-linejoin="round">
+    <g stroke="#6B4F3A" stroke-width="3.2" stroke-linejoin="round">
       <ellipse cx="248" cy="126" rx="49" ry="13" fill="#8A939B"/>
       <ellipse cx="248" cy="125" rx="40" ry="9" fill="#E9E4D6" stroke="none"/>
       <path d="M212 125a36 17 0 0172 0z" fill="#FFFDF5"/>
@@ -1286,8 +1312,8 @@ function sceneTable(){
     </g>
     ${pickItem("scoop", 232, 66, .95, 262, 96, true)}` : "";
   const cooker = `
-    <rect x="150" y="190" width="170" height="24" fill="#A9713F"/>
-    <g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round" fill="none">
+    <rect x="150" y="190" width="170" height="24" fill="#8A6647"/>
+    <g stroke="#6B4F3A" stroke-width="3.4" stroke-linejoin="round" fill="none">
       <path d="M196 134a16 16 0 0116-16h72a16 16 0 0116 16v38a18 18 0 01-18 18h-68a18 18 0 01-18-18z"
         fill="#F4F5F6"/>
       <rect x="211" y="142" width="70" height="30" rx="7" fill="#E4EAEE"/>
@@ -1299,7 +1325,7 @@ function sceneTable(){
     </g>
     ${riceInside}
     <g${lidStatic}>${lidAnim}
-      <g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round" fill="none">
+      <g stroke="#6B4F3A" stroke-width="3.4" stroke-linejoin="round" fill="none">
         <path d="M206 96q42-30 84 0" stroke-width="5"/>
         <rect x="234" y="84" width="30" height="14" rx="7" fill="#D9DEE2"/>
         <rect x="190" y="96" width="116" height="28" rx="13" fill="#FCFDFD"/>
@@ -1311,25 +1337,25 @@ function sceneTable(){
   /* --- テーブルと おなべ --- */
   const potLadle = potOn ? pickItem("ladle", 232, 190, 1.3, 270, 224, true) : "";
   const pot = `
-    <g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round" fill="none">
+    <g stroke="#6B4F3A" stroke-width="3.4" stroke-linejoin="round" fill="none">
       <path d="M226 250h82v28a20 20 0 01-20 20h-42a20 20 0 01-20-20z" fill="#6E7B87"/>
       <path d="M232 258h70v20c0 7-5 11-13 11h-44c-8 0-13-4-13-11z" fill="#B4651E" stroke="none"/>
       <rect x="220" y="240" width="94" height="12" rx="6" fill="#95A3AE"/>
       <path d="M220 264h-10M314 264h6" stroke-width="7" stroke-linecap="round"/>
     </g>${potLadle}`;
 
-  const plate = d.plate ? `<g stroke="#5A4632" stroke-width="3.6">
+  const plate = d.plate ? `<g stroke="#6B4F3A" stroke-width="3.6">
       <ellipse cx="108" cy="272" rx="82" ry="30" fill="#FFF6E0"/>
       <ellipse cx="108" cy="269" rx="66" ry="22" fill="#F6EEDA" stroke="none"/></g>` : "";
   const rice = d.rice>0 ? `<path d="M52 274a48 ${13+d.rice*8} 0 0196 0z"
-      fill="#FFFDF5" stroke="#5A4632" stroke-width="3.6" stroke-linejoin="round"/>` : "";
-  const curry = d.curry>0 ? `<g stroke="#5A4632" stroke-width="3.6" stroke-linejoin="round">
+      fill="#FFFDF5" stroke="#6B4F3A" stroke-width="3.6" stroke-linejoin="round"/>` : "";
+  const curry = d.curry>0 ? `<g stroke="#6B4F3A" stroke-width="3.6" stroke-linejoin="round">
       <path d="M98 274a44 ${12+d.curry*8} 0 0188 0z" fill="#B4651E"/>
       <circle cx="132" cy="258" r="7" fill="#F5893C" stroke-width="3"/>
       <circle cx="158" cy="266" r="7" fill="#D9A566" stroke-width="3"/>
       <circle cx="174" cy="254" r="6" fill="#FFB3C0" stroke-width="3"/></g>` : "";
   const spoon = d.spoon ? `<g transform="translate(192 250) rotate(14)"
-      stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round">
+      stroke="#6B4F3A" stroke-width="3.4" stroke-linejoin="round">
       <ellipse cx="0" cy="0" rx="10" ry="14" fill="#DDE6EA"/>
       <rect x="-3.5" y="11" width="7" height="32" rx="3.5" fill="#DDE6EA"/></g>` : "";
 
@@ -1344,13 +1370,14 @@ function sceneTable(){
     tap("cupboard",6,22,136,158) + tap("cooker",186,82,124,112) + tap("pot",214,232,106,70);
 
   return `<svg viewBox="0 0 320 340" preserveAspectRatio="xMidYMid meet">
-    <rect width="320" height="340" fill="#FFF1D6"/>
+    <rect width="320" height="340" fill="#F3EADA"/>
     ${cupboard}${cooker}
-    <g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round" fill="none">
-      <rect x="0" y="214" width="320" height="126" fill="#C98F55" stroke="none"/>
-      <rect x="0" y="204" width="320" height="12" rx="6" fill="#A9713F" stroke="none"/>
+    <g stroke="#6B4F3A" stroke-width="3.4" stroke-linejoin="round" fill="none">
+      <rect x="0" y="214" width="320" height="126" fill="#C2996B" stroke="none"/>
+      <rect x="0" y="204" width="320" height="12" rx="6" fill="#A8814F" stroke="none"/>
       <path d="M0 204h320" stroke-width="3"/>
-      <rect x="14" y="224" width="190" height="96" rx="16" fill="#FFD9E2"/>
+      <path d="M0 330h320M96 216v14M232 216v14" stroke="#A8814F" stroke-width="3"/>
+      <rect x="14" y="224" width="190" height="96" rx="16" fill="#F3C9CD"/>
     </g>
     ${plate}${rice}${curry}${spoon}${pot}${targets}
   </svg>`;
@@ -1369,18 +1396,18 @@ function sceneOven(){
       opacity=".85"><animate attributeName="opacity" values=".55;.95;.55"
       dur=".9s" repeatCount="indefinite"/></rect>` : "";
   const bakingDish = inOven ? `
-    <g stroke="#5A4632" stroke-width="3" stroke-linejoin="round">
+    <g stroke="#6B4F3A" stroke-width="3" stroke-linejoin="round">
       <ellipse cx="263" cy="162" rx="33" ry="12" fill="#FFF6E0"/>
       <path d="M232 160a31 12 0 0162 0z" fill="#E8B15C"/>
     </g>` : "";
-  const ovenDoor = `<g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round" fill="none">
+  const ovenDoor = `<g stroke="#6B4F3A" stroke-width="3.4" stroke-linejoin="round" fill="none">
       <path d="M214 128h98v56h-98z M222 135h82v42h-82z" fill="#C9CFD3" fill-rule="evenodd"/>
       <rect x="222" y="135" width="82" height="42" rx="4" fill="#8FA4B0" opacity=".3"/>
       <rect x="222" y="135" width="82" height="42" rx="4" fill="none"/>
       <rect x="210" y="120" width="106" height="9" rx="4.5" fill="#B9C0C5"/></g>`;
   const oven = `
-    <rect x="150" y="190" width="170" height="24" fill="#A9713F"/>
-    <g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round" fill="none">
+    <rect x="150" y="190" width="170" height="24" fill="#8A6647"/>
+    <g stroke="#6B4F3A" stroke-width="3.4" stroke-linejoin="round" fill="none">
       <rect x="208" y="94" width="110" height="96" rx="12" fill="#EAECEE"/>
       <rect x="214" y="100" width="98" height="20" rx="6" fill="#D5D9DC"/>
       <circle cx="225" cy="110" r="6" fill="#FFF6E0"/>
@@ -1397,7 +1424,7 @@ function sceneOven(){
   /* --- なべ（ホワイトソース） --- */
   const potLadle = potOn ? pickItem("ladle", 232, 190, 1.3, 270, 224, true) : "";
   const pot = `
-    <g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round" fill="none">
+    <g stroke="#6B4F3A" stroke-width="3.4" stroke-linejoin="round" fill="none">
       <path d="M226 250h82v28a20 20 0 01-20 20h-42a20 20 0 01-20-20z" fill="#6E7B87"/>
       <path d="M232 258h70v20c0 7-5 11-13 11h-44c-8 0-13-4-13-11z" fill="#FBF3E2" stroke="none"/>
       <rect x="220" y="240" width="94" height="12" rx="6" fill="#95A3AE"/>
@@ -1413,12 +1440,12 @@ function sceneOven(){
   let dish = "";
   if(d.plate && !inOven){
     const mac = i => `<path d="M${i} 262a9 9 0 0118 0h-5a4 4 0 00-8 0z"
-        fill="#F2D27E" stroke="#5A4632" stroke-width="2.4"/>`;
+        fill="#F2D27E" stroke="#6B4F3A" stroke-width="2.4"/>`;
     const sauce = d.sauce>0 ? `<ellipse cx="94" cy="268" rx="${46+d.sauce*8}"
-        ry="${13+d.sauce*4}" fill="#FFFCF0" stroke="#5A4632" stroke-width="3"/>
+        ry="${13+d.sauce*4}" fill="#FFFCF0" stroke="#6B4F3A" stroke-width="3"/>
         ${d.sauce>1 ? mac(62)+mac(90)+mac(116) : mac(80)+mac(104)}` : "";
     const shreds = d.cheese>0 && !d.baked ? `
-      <g fill="#F7CF5E" stroke="#5A4632" stroke-width="2.4">
+      <g fill="#F7CF5E" stroke="#6B4F3A" stroke-width="2.4">
         <rect x="64" y="256" width="18" height="7" rx="3.5"/>
         <rect x="88" y="250" width="18" height="7" rx="3.5"/>
         <rect x="110" y="258" width="18" height="7" rx="3.5"/>
@@ -1427,7 +1454,7 @@ function sceneOven(){
         <rect x="52" y="266" width="16" height="7" rx="3.5"/>` : ""}
       </g>` : "";
     const baked = d.baked ? `
-      <path d="M40 268a54 22 0 01108 0z" fill="#E8B15C" stroke="#5A4632" stroke-width="3.4"/>
+      <path d="M40 268a54 22 0 01108 0z" fill="#E8B15C" stroke="#6B4F3A" stroke-width="3.4"/>
       <circle cx="72" cy="258" r="6" fill="#C97F35" stroke="none"/>
       <circle cx="104" cy="254" r="5" fill="#C97F35" stroke="none"/>
       <circle cx="126" cy="262" r="4" fill="#C97F35" stroke="none"/>
@@ -1437,7 +1464,7 @@ function sceneOven(){
         <path d="M116 236c-7-9 7-13 0-22"><animate attributeName="opacity"
           values="1;.3;1" dur="2.2s" repeatCount="indefinite"/></path></g>` : "";
     dish = `
-      <g stroke="#5A4632" stroke-width="3.6" stroke-linejoin="round">
+      <g stroke="#6B4F3A" stroke-width="3.6" stroke-linejoin="round">
         <path d="M24 266H14a6 6 0 000 12h10M164 266h10a6 6 0 010 12h-10" fill="#FFF6E0"/>
         <ellipse cx="94" cy="272" rx="70" ry="26" fill="#FFF6E0"/>
         <ellipse cx="94" cy="269" rx="56" ry="18" fill="#F2EAD4" stroke="none"/>
@@ -1456,13 +1483,14 @@ function sceneOven(){
     + hint(146,160,62,34);
 
   return `<svg viewBox="0 0 320 340" preserveAspectRatio="xMidYMid meet">
-    <rect width="320" height="340" fill="#FFF1D6"/>
+    <rect width="320" height="340" fill="#F3EADA"/>
     ${cupboard}${oven}
-    <g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round" fill="none">
-      <rect x="0" y="214" width="320" height="126" fill="#C98F55" stroke="none"/>
-      <rect x="0" y="204" width="320" height="12" rx="6" fill="#A9713F" stroke="none"/>
+    <g stroke="#6B4F3A" stroke-width="3.4" stroke-linejoin="round" fill="none">
+      <rect x="0" y="214" width="320" height="126" fill="#C2996B" stroke="none"/>
+      <rect x="0" y="204" width="320" height="12" rx="6" fill="#A8814F" stroke="none"/>
       <path d="M0 204h320" stroke-width="3"/>
-      <rect x="10" y="226" width="176" height="94" rx="16" fill="#FFD9E2"/>
+      <path d="M0 330h320M96 216v14M232 216v14" stroke="#A8814F" stroke-width="3"/>
+      <rect x="10" y="226" width="176" height="94" rx="16" fill="#F3C9CD"/>
     </g>
     ${dish}${pot}${cheese}${targets}
   </svg>`;
@@ -1477,13 +1505,13 @@ function sceneServe(){
 
   /* --- コンロの うえの フライパン --- */
   const panPatty = d.patty ? "" : `
-    <ellipse cx="252" cy="150" rx="30" ry="13" fill="#6E4222" stroke="#5A4632" stroke-width="3.2"/>
-    <ellipse cx="252" cy="145" rx="30" ry="13" fill="#96602F" stroke="#5A4632" stroke-width="3.2"/>
-    <path d="M238 141l8 6M254 139l8 6" stroke="#5A3A20" stroke-width="3"/>`;
+    <ellipse cx="252" cy="150" rx="30" ry="13" fill="#6E4222" stroke="#6B4F3A" stroke-width="3.2"/>
+    <ellipse cx="252" cy="145" rx="30" ry="13" fill="#96602F" stroke="#6B4F3A" stroke-width="3.2"/>
+    <path d="M238 141l8 6M254 139l8 6" stroke="#7A5230" stroke-width="3"/>`;
   const panTurner = panOn ? pickItem("turner", 214, 92, 1.15, 250, 122, true) : "";
   const pan = `
-    <rect x="150" y="190" width="170" height="24" fill="#A9713F"/>
-    <g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round" fill="none">
+    <rect x="150" y="190" width="170" height="24" fill="#8A6647"/>
+    <g stroke="#6B4F3A" stroke-width="3.4" stroke-linejoin="round" fill="none">
       <path d="M200 152h104l-8 24a20 20 0 01-19 12h-50a20 20 0 01-19-12z" fill="#6E7B87"/>
       <ellipse cx="252" cy="152" rx="52" ry="15" fill="#4E5A63"/>
       ${panPatty}
@@ -1501,18 +1529,18 @@ function sceneServe(){
   let dish = "";
   if(d.plate){
     const patty = d.patty ? `
-      <ellipse cx="94" cy="276" rx="52" ry="21" fill="#6E4222" stroke="#5A4632" stroke-width="3.6"/>
-      <ellipse cx="94" cy="268" rx="52" ry="21" fill="#96602F" stroke="#5A4632" stroke-width="3.6"/>
-      <path d="M72 262l10 8M96 258l10 8" stroke="#5A3A20" stroke-width="3.4"/>` : "";
+      <ellipse cx="94" cy="276" rx="52" ry="21" fill="#6E4222" stroke="#6B4F3A" stroke-width="3.6"/>
+      <ellipse cx="94" cy="268" rx="52" ry="21" fill="#96602F" stroke="#6B4F3A" stroke-width="3.6"/>
+      <path d="M72 262l10 8M96 258l10 8" stroke="#7A5230" stroke-width="3.4"/>` : "";
     const sauce = d.sauce>0 ? `<path d="M${60-d.sauce*6} 266q${34+d.sauce*6}-14 ${68+d.sauce*12} 0
         q-${34+d.sauce*6} 14 -${68+d.sauce*12} 0z" fill="#E24B4B"
-        stroke="#5A4632" stroke-width="3"/>` : "";
+        stroke="#6B4F3A" stroke-width="3"/>` : "";
     const fork = d.fork ? `<g transform="translate(190 252) rotate(12)"
-        stroke="#5A4632" stroke-width="3" stroke-linejoin="round">
+        stroke="#6B4F3A" stroke-width="3" stroke-linejoin="round">
         <path d="M-7 0v-14M0 0v-14M7 0v-14" stroke-width="2.8"/>
         <path d="M-9 0h18v3a8 8 0 01-5 7v28h-8v-28a8 8 0 01-5-7z" fill="#DDE6EA"/></g>` : "";
     dish = `
-      <g stroke="#5A4632" stroke-width="3.6">
+      <g stroke="#6B4F3A" stroke-width="3.6">
         <ellipse cx="94" cy="274" rx="80" ry="30" fill="#FFF6E0"/>
         <ellipse cx="94" cy="271" rx="64" ry="22" fill="#F6EEDA" stroke="none"/>
       </g>${patty}${sauce}${fork}`;
@@ -1528,13 +1556,14 @@ function sceneServe(){
     tap("cupboard",6,22,136,158) + tap("pan",190,132,124,62) + hint(236,238,74,76);
 
   return `<svg viewBox="0 0 320 340" preserveAspectRatio="xMidYMid meet">
-    <rect width="320" height="340" fill="#FFF1D6"/>
+    <rect width="320" height="340" fill="#F3EADA"/>
     ${cupboard}${pan}
-    <g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round" fill="none">
-      <rect x="0" y="214" width="320" height="126" fill="#C98F55" stroke="none"/>
-      <rect x="0" y="204" width="320" height="12" rx="6" fill="#A9713F" stroke="none"/>
+    <g stroke="#6B4F3A" stroke-width="3.4" stroke-linejoin="round" fill="none">
+      <rect x="0" y="214" width="320" height="126" fill="#C2996B" stroke="none"/>
+      <rect x="0" y="204" width="320" height="12" rx="6" fill="#A8814F" stroke="none"/>
       <path d="M0 204h320" stroke-width="3"/>
-      <rect x="10" y="226" width="176" height="94" rx="16" fill="#FFD9E2"/>
+      <path d="M0 330h320M96 216v14M232 216v14" stroke="#A8814F" stroke-width="3"/>
+      <rect x="10" y="226" width="176" height="94" rx="16" fill="#F3C9CD"/>
     </g>
     ${dish}${ketchup}${targets}
   </svg>`;
@@ -1566,13 +1595,19 @@ function drawNeedbar(){
   }).join("");
 }
 
+/* シーンぜんたいに フェルトの ゆらぎを かける */
+function feltWrap(html){
+  return html.replace(/(<svg[^>]*>)([\s\S]*)(<\/svg>)/,
+    '$1<g filter="url(#felt)">$2</g>$3');
+}
+
 function drawScene(){
   const sc = STAGES[stageIdx].scene;
-  sceneEl.innerHTML = (state.act && state.act.mode === "chop") ? sceneChop()
+  sceneEl.innerHTML = feltWrap( (state.act && state.act.mode === "chop") ? sceneChop()
     : sc==="shop" ? sceneShop()
     : sc==="kitchen" ? sceneKitchen()
     : sc==="oven" ? sceneOven()
-    : sc==="serve" ? sceneServe() : sceneTable();
+    : sc==="serve" ? sceneServe() : sceneTable());
   state.openAnim = false;
   drawNeedbar();
 }
@@ -1870,13 +1905,13 @@ function stageClear(){
 
 function finishedHamburg(){
   return `<svg viewBox="0 0 320 150" xmlns="http://www.w3.org/2000/svg">
-    <ellipse cx="160" cy="94" rx="120" ry="42" fill="#FFF6E0" stroke="#5A4632" stroke-width="4"/>
+    <ellipse cx="160" cy="94" rx="120" ry="42" fill="#FFF6E0" stroke="#6B4F3A" stroke-width="4"/>
     <ellipse cx="160" cy="90" rx="98" ry="32" fill="#F6EEDA" stroke="none"/>
-    <ellipse cx="150" cy="88" rx="62" ry="26" fill="#6E4222" stroke="#5A4632" stroke-width="4"/>
-    <ellipse cx="150" cy="80" rx="62" ry="26" fill="#96602F" stroke="#5A4632" stroke-width="4"/>
-    <path d="M104 78q46-16 92 0q-46 16-92 0z" fill="#E24B4B" stroke="#5A4632" stroke-width="3"/>
-    <circle cx="236" cy="92" r="12" fill="#8ED45C" stroke="#5A4632" stroke-width="3"/>
-    <circle cx="252" cy="82" r="9" fill="#5FA83C" stroke="#5A4632" stroke-width="3"/>
+    <ellipse cx="150" cy="88" rx="62" ry="26" fill="#6E4222" stroke="#6B4F3A" stroke-width="4"/>
+    <ellipse cx="150" cy="80" rx="62" ry="26" fill="#96602F" stroke="#6B4F3A" stroke-width="4"/>
+    <path d="M104 78q46-16 92 0q-46 16-92 0z" fill="#E24B4B" stroke="#6B4F3A" stroke-width="3"/>
+    <circle cx="236" cy="92" r="12" fill="#8ED45C" stroke="#6B4F3A" stroke-width="3"/>
+    <circle cx="252" cy="82" r="9" fill="#5FA83C" stroke="#6B4F3A" stroke-width="3"/>
     <g stroke="#C9D6DE" stroke-width="6" fill="none" stroke-linecap="round" opacity=".9">
       <path d="M120 42c-8-10 8-15 0-25"/><path d="M186 38c-8-10 8-15 0-25"/></g>
     <text x="40" y="36" font-size="26">✨</text><text x="262" y="34" font-size="22">✨</text>
@@ -1886,9 +1921,9 @@ function finishedHamburg(){
 function finishedGratin(){
   return `<svg viewBox="0 0 320 150" xmlns="http://www.w3.org/2000/svg">
     <path d="M46 76H26a10 10 0 000 20h20M274 76h20a10 10 0 010 20h-20"
-      fill="#FFF6E0" stroke="#5A4632" stroke-width="4"/>
-    <ellipse cx="160" cy="92" rx="118" ry="40" fill="#FFF6E0" stroke="#5A4632" stroke-width="4"/>
-    <path d="M62 90a98 36 0 01196 0z" fill="#E8B15C" stroke="#5A4632" stroke-width="4"/>
+      fill="#FFF6E0" stroke="#6B4F3A" stroke-width="4"/>
+    <ellipse cx="160" cy="92" rx="118" ry="40" fill="#FFF6E0" stroke="#6B4F3A" stroke-width="4"/>
+    <path d="M62 90a98 36 0 01196 0z" fill="#E8B15C" stroke="#6B4F3A" stroke-width="4"/>
     <circle cx="112" cy="70" r="10" fill="#C97F35" stroke="none"/>
     <circle cx="168" cy="62" r="8" fill="#C97F35" stroke="none"/>
     <circle cx="214" cy="74" r="9" fill="#C97F35" stroke="none"/>
@@ -1900,13 +1935,13 @@ function finishedGratin(){
 
 function finishedCurry(){
   return `<svg viewBox="0 0 320 150" xmlns="http://www.w3.org/2000/svg">
-    <ellipse cx="160" cy="90" rx="120" ry="42" fill="#FFF6E0" stroke="#5A4632" stroke-width="4"/>
+    <ellipse cx="160" cy="90" rx="120" ry="42" fill="#FFF6E0" stroke="#6B4F3A" stroke-width="4"/>
     <ellipse cx="160" cy="86" rx="98" ry="32" fill="#F6EEDA" stroke="none"/>
-    <path d="M90 88a56 26 0 01112 0z" fill="#FFFDF5" stroke="#5A4632" stroke-width="4"/>
-    <path d="M150 88a62 26 0 01118 0z" fill="#B4651E" stroke="#5A4632" stroke-width="4"/>
-    <circle cx="196" cy="72" r="8" fill="#F5893C" stroke="#5A4632" stroke-width="3"/>
-    <circle cx="222" cy="80" r="8" fill="#D9A566" stroke="#5A4632" stroke-width="3"/>
-    <circle cx="246" cy="70" r="7" fill="#FFB3C0" stroke="#5A4632" stroke-width="3"/>
+    <path d="M90 88a56 26 0 01112 0z" fill="#FFFDF5" stroke="#6B4F3A" stroke-width="4"/>
+    <path d="M150 88a62 26 0 01118 0z" fill="#B4651E" stroke="#6B4F3A" stroke-width="4"/>
+    <circle cx="196" cy="72" r="8" fill="#F5893C" stroke="#6B4F3A" stroke-width="3"/>
+    <circle cx="222" cy="80" r="8" fill="#D9A566" stroke="#6B4F3A" stroke-width="3"/>
+    <circle cx="246" cy="70" r="7" fill="#FFB3C0" stroke="#6B4F3A" stroke-width="3"/>
     <text x="52" y="34" font-size="26">✨</text><text x="252" y="30" font-size="22">✨</text>
   </svg>`;
 }
