@@ -1,0 +1,1897 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>おりょうりごっこ｜くまシェフのキッチン</title>
+<meta name="description" content="ようじむけの おりょうり ゲーム。スーパー・キッチン・もりつけの 3ステージで カレーを つくろう！">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+/* ========== デザイントークン ==========
+   どうぶつの森ふうの「やさしい木と草」パレット */
+:root{
+  --grass:#8ED45C;
+  --grass-dark:#5FA83C;
+  --cream:#FFF6E0;
+  --cream-2:#FFE9BC;
+  --wood:#D8A165;
+  --wood-dark:#A9713F;
+  --ink:#5A4632;
+  --pink:#FF9EB5;
+  --sky:#BFE9F5;
+  --shadow:rgba(90,70,50,.22);
+  --r:26px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:"M PLUS Rounded 1c","Hiragino Maru Gothic ProN","ヒラギノ丸ゴ ProN W4",sans-serif;
+  font-weight:800;
+  color:var(--ink);
+  background:var(--grass);
+  background-image:
+    radial-gradient(circle at 12% 22%, rgba(255,255,255,.28) 0 7px, transparent 8px),
+    radial-gradient(circle at 62% 68%, rgba(255,255,255,.22) 0 5px, transparent 6px),
+    radial-gradient(circle at 88% 32%, rgba(255,255,255,.18) 0 9px, transparent 10px);
+  background-size:180px 180px,140px 140px,220px 220px;
+  overflow:hidden;
+  user-select:none;
+}
+#app{
+  position:relative;
+  height:100dvh;
+  max-width:600px;
+  margin:0 auto;
+  display:flex;
+  flex-direction:column;
+  padding:env(safe-area-inset-top) 10px env(safe-area-inset-bottom);
+}
+
+/* ---------- ヘッダー ---------- */
+header{
+  position:relative;z-index:55;
+  flex:0 0 auto;
+  display:flex;align-items:center;gap:8px;
+  padding:8px 4px 4px;
+}
+.leafbar{display:flex;gap:5px;flex:1}
+.leaf{width:26px;height:26px;opacity:.35;transition:.3s}
+.leaf.on{opacity:1;transform:scale(1.12)}
+.iconbtn{
+  width:42px;height:42px;border:none;border-radius:50%;
+  background:var(--cream);box-shadow:0 3px 0 var(--wood-dark);
+  font-size:19px;line-height:1;cursor:pointer;color:var(--ink);
+  display:grid;place-items:center;
+}
+.iconbtn:active{transform:translateY(3px);box-shadow:none}
+.iconbtn.off{opacity:.45}
+
+/* ---------- くまシェフの ふきだし ---------- */
+.talk{
+  flex:0 0 auto;
+  display:flex;align-items:center;gap:8px;padding:2px 2px 8px;
+}
+.bear{width:66px;height:66px;flex:0 0 auto;animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-5px) rotate(2deg)}}
+.bubble{
+  position:relative;flex:1;
+  background:var(--cream);border-radius:20px;
+  padding:12px 14px;font-size:17px;line-height:1.45;
+  box-shadow:0 4px 0 var(--wood-dark);
+  min-height:56px;display:flex;align-items:center;
+}
+.bubble::before{
+  content:"";position:absolute;left:-9px;top:50%;margin-top:-9px;
+  border:9px solid transparent;border-right-color:var(--cream);
+}
+.bubble.wiggle{animation:wig .4s}
+@keyframes wig{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+/* ---------- つかう ざいりょう リスト ---------- */
+#needbar{
+  flex:0 0 auto;display:none;align-items:center;justify-content:center;gap:5px;
+  background:var(--cream);border-radius:18px;
+  box-shadow:0 4px 0 var(--wood-dark);
+  padding:5px 8px;margin-bottom:8px;
+}
+#needbar b{font-size:12px;color:var(--wood-dark);margin-right:2px;line-height:1.15;text-align:center}
+#needbar span{
+  display:flex;flex-direction:column;align-items:center;gap:1px;
+  font-size:11px;padding:3px 5px;border-radius:11px;min-width:46px;
+  border:2px dashed var(--wood);
+}
+#needbar span.got{background:#DFF3C9;color:var(--grass-dark);border-style:solid;border-color:#8ED45C}
+#needbar span.got::after{content:"⭕️";font-size:10px;line-height:1}
+#needbar svg{width:26px;height:26px}
+
+/* ---------- シーン ---------- */
+#scene{
+  flex:1 1 auto;min-height:0;
+  background:var(--cream);
+  border-radius:var(--r);
+  box-shadow:0 6px 0 var(--wood-dark);
+  overflow:hidden;position:relative;
+  display:flex;
+}
+#scene > svg{width:100%;height:100%;display:block}
+.shoplist{
+  position:absolute;left:10px;top:10px;width:37%;max-height:calc(100% - 20px);
+  background:rgba(255,255,255,.92);border-radius:18px;
+  border:3px dashed var(--wood);
+  padding:8px 6px;display:flex;flex-direction:column;gap:2px;
+  overflow:hidden;
+}
+.shoplist h3{margin:0 0 2px;font-size:13px;text-align:center;color:var(--wood-dark)}
+.shoplist li{
+  list-style:none;display:flex;align-items:center;gap:5px;
+  font-size:13px;padding:2px 3px;border-radius:9px;
+  white-space:nowrap;
+}
+@media (max-width:400px){ .shoplist li{font-size:11px} .shoplist li svg{width:18px;height:18px} }
+.shoplist ul{margin:0;padding:0;display:flex;flex-direction:column;gap:1px}
+.shoplist li svg{width:22px;height:22px;flex:0 0 auto}
+.shoplist li.got{background:#DFF3C9;color:var(--grass-dark)}
+.shoplist li.got::after{content:"⭕️";margin-left:auto;font-size:12px}
+
+/* ---------- どうぐトレイ ---------- */
+#tray{
+  flex:0 0 auto;
+  margin-top:8px;
+  background:var(--wood);
+  border-radius:var(--r);
+  box-shadow:0 6px 0 var(--wood-dark);
+  padding:10px;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  max-height:40dvh;overflow:auto;
+}
+.card{
+  background:var(--cream);border:none;border-radius:18px;
+  box-shadow:0 4px 0 rgba(0,0,0,.16);
+  padding:6px 2px 4px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:1px;
+  font:inherit;color:var(--ink);font-size:12px;
+  transition:transform .12s;
+}
+.card svg{width:100%;height:auto;aspect-ratio:1;max-height:60px}
+.card:active{transform:translateY(4px);box-shadow:none}
+.card.done{opacity:.35;pointer-events:none}
+.card.shake{animation:sh .38s}
+#tray.busy{pointer-events:none}
+#tray.busy .card{opacity:.4}
+.chopTarget{cursor:pointer}
+@keyframes chop{
+  0%{transform:translateY(0)}
+  38%{transform:translateY(56px)}
+  58%{transform:translateY(44px)}
+  100%{transform:translateY(0)}
+}
+#scene .knife.go{animation:chop .42s ease-in-out}
+@keyframes sh{20%{transform:rotate(-8deg)}60%{transform:rotate(8deg)}}
+
+/* ---------- とぶ アイコン ---------- */
+.ghost{
+  position:fixed;z-index:60;pointer-events:none;
+  transition:transform .55s cubic-bezier(.4,-0.3,.6,1),opacity .55s;
+}
+.ghost svg{width:100%;height:100%}
+
+/* ---------- キラキラ ---------- */
+.spark{
+  position:fixed;z-index:59;pointer-events:none;font-size:22px;
+  animation:sp .8s ease-out forwards;
+}
+@keyframes sp{to{transform:translate(var(--dx),var(--dy)) scale(.2) rotate(180deg);opacity:0}}
+
+/* ---------- オーバーレイ（タイトル・ステージ・クリア） ---------- */
+.overlay{
+  position:absolute;inset:0;z-index:50;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:14px;padding:22px;text-align:center;
+  background:rgba(94,168,60,.94);
+  animation:fade .35s;
+}
+@keyframes fade{from{opacity:0}}
+.overlay.hide{display:none}
+.plank{
+  background:var(--cream);border-radius:24px;
+  box-shadow:0 7px 0 var(--wood-dark);
+  padding:18px 22px;max-width:420px;
+}
+.plank h1{margin:0;font-size:clamp(26px,7vw,38px);line-height:1.2}
+.plank h2{margin:0;font-size:clamp(20px,5.6vw,27px)}
+.plank p{margin:8px 0 0;font-size:15px;font-weight:700;line-height:1.6}
+.big{
+  border:none;border-radius:999px;padding:15px 34px;
+  font:inherit;font-size:20px;color:#fff;cursor:pointer;
+  background:var(--pink);box-shadow:0 6px 0 #D96C86;
+}
+.big:active{transform:translateY(5px);box-shadow:none}
+.big.green{background:var(--grass-dark);box-shadow:0 6px 0 #3E7A26}
+.big.wood{background:#C98240;box-shadow:0 6px 0 #96591F}
+.overlay svg.hero{width:min(56vw,210px);height:auto}
+.row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.small{font-size:16px;padding:12px 22px}
+
+@media (max-height:660px){
+  .bear{width:52px;height:52px}
+  .bubble{font-size:15px;min-height:46px;padding:9px 12px}
+  .card svg{max-height:46px}
+  #tray{gap:6px;padding:8px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="leafbar" id="leafbar"></div>
+    <button class="iconbtn" id="btnVoice" aria-label="こえ">🔈</button>
+    <button class="iconbtn" id="btnHome" aria-label="さいしょから">🏠</button>
+  </header>
+
+  <div class="talk">
+    <div class="bear" id="bearBox"></div>
+    <div class="bubble" id="bubble">じゅんびちゅう…</div>
+  </div>
+
+  <div id="needbar"></div>
+  <div id="scene"></div>
+  <div id="tray"></div>
+
+  <div class="overlay" id="overlay"></div>
+</div>
+
+<script>
+/* =====================================================================
+   おりょうりごっこ  ―  ようじむけ クッキングゲーム
+   単一HTML / ビルドなし / GitHub Pages でそのまま公開できます
+   ===================================================================== */
+
+/* ---------------------------------------------------------------
+   1. イラスト（すべて手描きSVG）
+   --------------------------------------------------------------- */
+const S = (inner, extra="") =>
+  `<svg viewBox="0 0 64 64" ${extra} xmlns="http://www.w3.org/2000/svg"
+     stroke="#5A4632" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"
+     fill="none">${inner}</svg>`;
+
+const ART = {
+  /* --- やさい・にく --- */
+  carrot: S(`<path d="M32 22c-3-7-2-12 0-16 3 4 4 9 0 16z" fill="#8ED45C"/>
+    <path d="M32 22c-3-7-9-10-14-9 3 7 8 9 14 9z" fill="#7EC850"/>
+    <path d="M32 22c3-7 9-10 14-9-3 7-8 9-14 9z" fill="#5FA83C"/>
+    <path d="M21 22q11-5 22 0l-8 32q-3 5-6 0z" fill="#F5893C"/>
+    <path d="M26 31h12M28 40h8M29.5 48h5" stroke="#C9622A" stroke-width="2"/>`),
+  potato: S(`<ellipse cx="32" cy="34" rx="19" ry="15" fill="#D9A566"/>
+    <circle cx="26" cy="30" r="1.8" fill="#8A6236" stroke="none"/>
+    <circle cx="37" cy="36" r="1.8" fill="#8A6236" stroke="none"/>
+    <circle cx="33" cy="26" r="1.4" fill="#8A6236" stroke="none"/>`),
+  onion: S(`<path d="M32 18c10 0 18 9 18 18 0 8-8 13-18 13s-18-5-18-13c0-9 8-18 18-18z" fill="#EBD7EA"/>
+    <path d="M24 24c-2 8-2 16 0 22M40 24c2 8 2 16 0 22" stroke="#B98CB5" stroke-width="2"/>
+    <path d="M32 18c0-5 3-8 6-9-1 5-2 8-6 9z" fill="#7EC850"/>`),
+  pork: S(`<rect x="12" y="20" width="40" height="26" rx="9" fill="#FFB3C0"/>
+    <path d="M12 30c8-4 14 4 22 0s10 2 18-2" stroke="#FFF" stroke-width="4"/>
+    <path d="M12 30c8-4 14 4 22 0s10 2 18-2"/>`),
+  roux: S(`<rect x="14" y="14" width="36" height="38" rx="6" fill="#E5A03C"/>
+    <rect x="19" y="22" width="26" height="16" rx="4" fill="#FFF6E0"/>
+    <text x="32" y="34" font-size="10" font-family="sans-serif" font-weight="700"
+      text-anchor="middle" fill="#A9541F" stroke="none">カレー</text>
+    <path d="M20 46h24" stroke-width="2"/>`),
+  apple: S(`<path d="M32 22c6-6 20-2 18 10-2 11-11 20-18 20S16 43 14 32c-2-12 12-16 18-10z" fill="#F2606B"/>
+    <path d="M32 22v-6" /><path d="M32 18c4-4 9-4 11-2-3 4-7 5-11 2z" fill="#7EC850"/>`),
+  banana: S(`<path d="M16 20c2 18 14 28 32 24-4-4-6-8-6-13 0-6-10-13-26-11z" fill="#FCD94B"/>
+    <path d="M16 20c-2 0-3 2-2 4" />`),
+  ice: S(`<path d="M22 30h20l-10 24z" fill="#E0B173"/>
+    <circle cx="26" cy="24" r="9" fill="#FFC0CB"/><circle cx="38" cy="24" r="9" fill="#C6EFE0"/>
+    <circle cx="32" cy="18" r="8" fill="#FFF2C2"/>`),
+  juice: S(`<rect x="18" y="20" width="26" height="32" rx="4" fill="#FF8FA0"/>
+    <rect x="22" y="26" width="18" height="12" rx="3" fill="#FFF6E0"/>
+    <path d="M40 20l6-10" stroke-width="3"/>`),
+  snack: S(`<path d="M18 24h28l6-8v32l-6-8H18l-6 8V16z" fill="#8FD1F0"/>
+    <circle cx="26" cy="32" r="3" fill="#FFF6E0"/><circle cx="36" cy="32" r="3" fill="#FFF6E0"/>`),
+  fish: S(`<path d="M14 32c8-12 26-12 34 0-8 12-26 12-34 0z" fill="#9BD6E8"/>
+    <path d="M48 32l8-8v16z" fill="#6FB7CE"/><circle cx="24" cy="30" r="2" fill="#5A4632" stroke="none"/>`),
+  egg: S(`<ellipse cx="32" cy="36" rx="15" ry="18" fill="#FFF6E0"/>`),
+  milk: S(`<path d="M20 24h24v28H20z" fill="#FFF6E0"/><path d="M20 24l6-10h12l6 10" fill="#F2F2F2"/>
+    <circle cx="32" cy="38" r="6" fill="#8FD1F0"/>`),
+
+  macaroni: S(`<path d="M8 48a13 13 0 0126 0h-7.5a5.5 5.5 0 00-11 0z" fill="#F2D27E"/>
+    <path d="M20 30a13 13 0 0126 0h-7.5a5.5 5.5 0 00-11 0z" fill="#F7DE96"/>
+    <path d="M32 50a13 13 0 0126 0h-7.5a5.5 5.5 0 00-11 0z" fill="#EFC55F"/>`),
+  chicken: S(`<path d="M31 38L15 53" stroke-width="12" stroke-linecap="round"/>
+    <path d="M31 38L15 53" stroke="#FFF6E0" stroke-width="7" stroke-linecap="round"/>
+    <circle cx="13" cy="55" r="6.5" fill="#FFF6E0"/>
+    <path d="M27 44c-8-4-11-13-8-21 3-10 15-14 24-9 9 5 12 17 6 25-5 7-15 9-22 5z" fill="#F5C79C"/>
+    <path d="M34 21c5-1 9 2 11 6" stroke="#E0A87A" stroke-width="2.6"/>`),
+  cheese: S(`<path d="M8 44l42-20a6 6 0 016 5v15a4 4 0 01-4 4H12a4 4 0 01-4-4z" fill="#F7CF5E"/>
+    <circle cx="24" cy="39" r="4" fill="#E3B03F" stroke="none"/>
+    <circle cx="40" cy="36" r="3.2" fill="#E3B03F" stroke="none"/>
+    <circle cx="47" cy="43" r="2.6" fill="#E3B03F" stroke="none"/>`),
+  gratindish: S(`<path d="M12 32H7a4 4 0 000 8h5M52 32h5a4 4 0 010 8h-5"/>
+    <ellipse cx="32" cy="36" rx="21" ry="13" fill="#FFF6E0"/>
+    <ellipse cx="32" cy="34" rx="14" ry="7" fill="#F2EAD4" stroke="none"/>`),
+
+  mince: S(`<path d="M8 46a24 17 0 0148 0z" fill="#F4909B"/>
+    <path d="M16 40q6-6 12 0t12 0" stroke="#D96C7B" stroke-width="2.6" fill="none"/>
+    <path d="M13 46q8-6 16 0t18 0" stroke="#D96C7B" stroke-width="2.6" fill="none"/>`),
+  panko: S(`<path d="M16 24h32v28a4 4 0 01-4 4H20a4 4 0 01-4-4z" fill="#E8CFA0"/>
+    <path d="M16 24l5-8h22l5 8" fill="#D9BC87"/>
+    <rect x="22" y="34" width="20" height="14" rx="3" fill="#FFF6E0"/>
+    <circle cx="28" cy="40" r="2" fill="#D9BC87" stroke="none"/>
+    <circle cx="35" cy="44" r="2" fill="#D9BC87" stroke="none"/>
+    <circle cx="37" cy="38" r="1.6" fill="#D9BC87" stroke="none"/>`),
+  ketchup: S(`<path d="M27 16h10v5c6 3 9 9 9 15v16a6 6 0 01-6 6H24a6 6 0 01-6-6V36c0-6 3-12 9-15z" fill="#E24B4B"/>
+    <rect x="27" y="8" width="10" height="9" rx="2.5" fill="#FFF6E0"/>
+    <rect x="22" y="36" width="20" height="14" rx="3" fill="#FFF6E0"/>
+    <path d="M27 43h10" stroke="#E24B4B" stroke-width="3"/>`),
+  patty: S(`<ellipse cx="32" cy="40" rx="23" ry="14" fill="#DE8E7C"/>
+    <ellipse cx="32" cy="35" rx="23" ry="14" fill="#F2B39E"/>
+    <path d="M26 32q6 5 12 0" stroke="#DE8E7C" stroke-width="2.6"/>`),
+  hamburg: S(`<ellipse cx="32" cy="40" rx="23" ry="14" fill="#6E4222"/>
+    <ellipse cx="32" cy="35" rx="23" ry="14" fill="#96602F"/>
+    <path d="M20 32l8 6M32 30l8 6" stroke="#5A3A20" stroke-width="3"/>`),
+  turner: S(`<path d="M6 24h30a4 4 0 014 4v10a4 4 0 01-4 4H6a4 4 0 01-4-4V28a4 4 0 014-4z" fill="#DDE6EA"/>
+    <path d="M12 28v10M22 28v10M32 28v10" stroke="#9FB0B9" stroke-width="2.6"/>
+    <rect x="40" y="29" width="22" height="8" rx="4" fill="#8A5A34"/>`),
+
+  /* --- きった ざいりょう --- */
+  carrotCut: S(`<circle cx="20" cy="38" r="9" fill="#F5893C"/><circle cx="34" cy="30" r="9" fill="#F5893C"/>
+    <circle cx="46" cy="40" r="9" fill="#F5893C"/>
+    <circle cx="20" cy="38" r="4" fill="#FBB068" stroke="none"/>
+    <circle cx="34" cy="30" r="4" fill="#FBB068" stroke="none"/>
+    <circle cx="46" cy="40" r="4" fill="#FBB068" stroke="none"/>`),
+  potatoCut: S(`<rect x="12" y="30" width="16" height="14" rx="4" fill="#D9A566"/>
+    <rect x="30" y="22" width="15" height="14" rx="4" fill="#D9A566"/>
+    <rect x="36" y="38" width="16" height="14" rx="4" fill="#D9A566"/>`),
+  onionCut: S(`<path d="M12 42a12 12 0 0124 0z" fill="#EBD7EA"/>
+    <path d="M20 42a4 4 0 018 0" stroke="#B98CB5" stroke-width="2"/>
+    <path d="M30 30a12 12 0 0124 0z" fill="#EBD7EA"/>
+    <path d="M38 30a4 4 0 018 0" stroke="#B98CB5" stroke-width="2"/>`),
+  porkCut: S(`<rect x="12" y="30" width="15" height="14" rx="5" fill="#FFB3C0"/>
+    <rect x="30" y="20" width="15" height="14" rx="5" fill="#FFB3C0"/>
+    <rect x="34" y="38" width="15" height="14" rx="5" fill="#FFB3C0"/>`),
+  chickenCut: S(`<rect x="12" y="30" width="15" height="14" rx="5" fill="#F5C79C"/>
+    <rect x="30" y="20" width="15" height="14" rx="5" fill="#F5C79C"/>
+    <rect x="34" y="38" width="15" height="14" rx="5" fill="#F5C79C"/>`),
+
+  /* --- どうぐ --- */
+  knife: S(`<path d="M38 21H13c-6 3-11 9-11 13 0 3 3 4 7 4h29z" fill="#DDE6EA"/>
+    <path d="M15 28h18" stroke="#B9C4CB" stroke-width="2.4"/>
+    <rect x="36" y="18" width="8" height="23" rx="3" fill="#B9C4CB"/>
+    <path d="M43 22h13c4 0 6 2 6 5v4c0 3-2 5-6 5H43z" fill="#8A5A34"/>
+    <circle cx="53" cy="29.5" r="2" fill="#FFF6E0" stroke="none"/>`),
+  pot: S(`<path d="M12 26h40v16a10 10 0 01-10 10H22a10 10 0 01-10-10z" fill="#6E7B87"/>
+    <rect x="8" y="22" width="48" height="6" rx="3" fill="#95A3AE"/>
+    <path d="M8 32H4M56 32h4" stroke-width="4"/>`),
+  ladle: S(`<path d="M18 26a12 12 0 0024 0z" fill="#DDE6EA"/><path d="M30 26V10" stroke-width="4"/>
+    <path d="M30 10c0-3 4-3 4 0" stroke-width="3"/>`),
+  lid: S(`<path d="M10 40a22 14 0 0144 0z" fill="#95A3AE"/><path d="M32 26v-6" stroke-width="4"/>
+    <circle cx="32" cy="18" r="4" fill="#D8A165"/><path d="M8 42h48" stroke-width="4"/>`),
+  water: S(`<path d="M20 22h24l-3 26a6 6 0 01-6 5h-6a6 6 0 01-6-5z" fill="#DFF4FB"/>
+    <path d="M22 34h20l-2 14a6 6 0 01-6 5h-4a6 6 0 01-6-5z" fill="#8FD1F0" stroke="none"/>
+    <path d="M22 34h20"/>`),
+  scoop: S(`<path d="M22 12a10 14 0 0120 0c0 10-4 18-10 18s-10-8-10-18z" fill="#FFF6E0"/>
+    <rect x="29" y="28" width="6" height="24" rx="3" fill="#FFF6E0"/>`),
+  spoon: S(`<ellipse cx="32" cy="20" rx="9" ry="12" fill="#DDE6EA"/>
+    <rect x="29" y="30" width="6" height="24" rx="3" fill="#DDE6EA"/>`),
+  fork: S(`<path d="M24 10v12M32 10v12M40 10v12" stroke-width="3"/>
+    <path d="M22 22h20v4a10 10 0 01-6 9v19h-8V35a10 10 0 01-6-9z" fill="#DDE6EA"/>`),
+  plate: S(`<ellipse cx="32" cy="36" rx="26" ry="14" fill="#FFF6E0"/>
+    <ellipse cx="32" cy="34" rx="17" ry="8" fill="#F2EAD4"/>`),
+  cup: S(`<path d="M18 18h24l-3 30a6 6 0 01-6 5h-6a6 6 0 01-6-5z" fill="#FFF6E0"/>
+    <path d="M42 24c8 0 8 12 0 12" stroke-width="3"/>`),
+  bowl: S(`<path d="M10 28h44a22 22 0 01-44 0z" fill="#FFF6E0"/>
+    <path d="M12 28c6-4 34-4 40 0" stroke="#B98CB5" stroke-width="2"/>`),
+  sugar: S(`<path d="M18 22h28v28a4 4 0 01-4 4H22a4 4 0 01-4-4z" fill="#FFF6E0"/>
+    <path d="M18 22l6-8h16l6 8"/>
+    <text x="32" y="42" font-size="11" font-family="sans-serif" font-weight="700"
+      text-anchor="middle" fill="#C48BB0" stroke="none">さとう</text>`),
+  salt: S(`<path d="M20 26h24v22a6 6 0 01-6 6H26a6 6 0 01-6-6z" fill="#DFF4FB"/>
+    <path d="M22 26a10 10 0 0120 0" fill="#95A3AE"/>
+    <circle cx="28" cy="22" r="1.4" fill="#5A4632" stroke="none"/>
+    <circle cx="36" cy="22" r="1.4" fill="#5A4632" stroke="none"/>`),
+
+  leaf: S(`<path d="M32 8c16 6 22 22 16 36-14 6-30-2-34-16C10 16 20 10 32 8z" fill="#8ED45C"/>
+    <path d="M20 44C26 30 34 20 44 14"/>`)
+};
+
+const LABEL = {
+  carrot:"にんじん", potato:"じゃがいも", onion:"たまねぎ", pork:"ぶたにく", roux:"カレールー",
+  apple:"りんご", banana:"バナナ", ice:"アイス", juice:"ジュース", snack:"おかし",
+  fish:"おさかな", egg:"たまご", milk:"ぎゅうにゅう",
+  carrotCut:"にんじん", potatoCut:"じゃがいも", onionCut:"たまねぎ", porkCut:"ぶたにく",
+  macaroni:"マカロニ", chicken:"とりにく", chickenCut:"とりにく", cheese:"チーズ", gratindish:"グラタンざら",
+  mince:"ひきにく", panko:"パンこ", ketchup:"ケチャップ", patty:"たね", hamburg:"ハンバーグ",
+  turner:"フライがえし",
+  knife:"ほうちょう", pot:"おなべ", ladle:"おたま", lid:"ふた", water:"おみず",
+  scoop:"しゃもじ", spoon:"スプーン", fork:"フォーク",
+  plate:"カレーざら", cup:"コップ", bowl:"どんぶり", sugar:"さとう", salt:"しお"
+};
+
+const CUT = { carrot:"carrotCut", potato:"potatoCut", onion:"onionCut", pork:"porkCut",
+  chicken:"chickenCut" };
+
+/* くまシェフ */
+function bearSVG(mood="happy"){
+  const eyes = mood==="happy"
+    ? `<circle cx="25" cy="38" r="2.6" fill="#5A4632" stroke="none"/>
+       <circle cx="39" cy="38" r="2.6" fill="#5A4632" stroke="none"/>`
+    : `<path d="M22 38q3-3 6 0M36 38q3-3 6 0" stroke-width="2.6"/>`;
+  return S(`
+    <circle cx="17" cy="24" r="8" fill="#C89B6E"/><circle cx="47" cy="24" r="8" fill="#C89B6E"/>
+    <circle cx="32" cy="40" r="20" fill="#E0BB8C"/>
+    <path d="M14 24a18 10 0 0136 0c0 4-8 4-18 4s-18 0-18-4z" fill="#FFF6E0"/>
+    <path d="M18 18a8 8 0 0110-6 9 9 0 018 0 8 8 0 0110 6c0 5-6 7-14 7s-14-2-14-7z" fill="#FFF6E0"/>
+    ${eyes}
+    <ellipse cx="32" cy="46" rx="10" ry="7.5" fill="#FFF6E0"/>
+    <ellipse cx="32" cy="42" rx="3.2" ry="2.4" fill="#5A4632" stroke="none"/>
+    <path d="M32 45v2M32 47q-4 4-6-1M32 47q4 4 6-1" stroke-width="2.2"/>
+    <circle cx="18" cy="46" r="3.4" fill="#FFB3C0" stroke="none"/>
+    <circle cx="46" cy="46" r="3.4" fill="#FFB3C0" stroke="none"/>`);
+}
+
+/* ---------------------------------------------------------------
+   2. ゲームの ながれ（データ）
+   --------------------------------------------------------------- */
+const CURRY_STAGES = [
+  {
+    id:"shop", scene:"shop", name:"スーパー", emoji:"🛒",
+    intro:"ステージ 1 ・ スーパー",
+    introText:"カレーの ざいりょうを かごに いれよう！",
+    steps:[{
+      say:"かいものリストの ものを ぜんぶ かごに いれてね",
+      shuffle:true,
+      tray:["carrot","potato","onion","pork","roux","apple","banana","ice","juice","snack","fish","egg"],
+      need:["carrot","potato","onion","pork","roux"],
+      hit:id=>{ state.cart.push(id); }
+    }],
+    clear:"かいもの できたね！ おうちに かえろう"
+  },
+  {
+    id:"kitchen", scene:"kitchen", name:"キッチン", emoji:"🍳",
+    intro:"ステージ 2 ・ キッチン",
+    introText:"きって、いためて、コトコト にこもう！",
+    steps:[
+      { say:"やさいを まないたに のせよう！",
+        mode:"chop", chops:3, listTitle:"きる<br>もの",
+        tray:["carrot","potato","onion","pork","roux"],
+        need:["carrot","potato","onion"],
+        hit:id=>{ state.cut.push(id); },
+        wrong:{pork:"おにくは やさいの あとだよ", roux:"ルーは いちばん さいごだよ"} },
+
+      { say:"つぎは ぶたにくを まないたに のせよう！",
+        mode:"chop", chops:3,
+        tray:["pork","roux","water"],
+        need:["pork"],
+        hit:()=>{ state.cut.push("pork"); },
+        wrong:{roux:"ルーは まだ まだ！", water:"おみずは あとでね"} },
+
+      { say:"きった ざいりょうを おなべに いれよう！",
+        listTitle:"いれる<br>もの",
+        tray:["carrotCut","potatoCut","onionCut","porkCut","roux","water"],
+        need:["carrotCut","potatoCut","onionCut","porkCut"],
+        hit:()=>{ state.pot.food++; },
+        wrong:{roux:"ルーは さいごだよ", water:"おみずは いためてから！"} },
+
+      { say:"おたまを えらんで、なべの なかを まぜよう！",
+        mode:"stir", times:3,
+        tray:["ladle","knife","scoop"],
+        need:["ladle"],
+        hold:()=>{ state.pot.fire = true; },
+        hit:()=>{ state.pot.fire=true; state.pot.stir++; },
+        wrong:{knife:"もう きらなくて いいよ", scoop:"しゃもじは ごはんの どうぐ！"} },
+
+      { say:"おなべに おみずを いれよう！",
+        tray:["water","juice","milk"],
+        need:["water"],
+        hit:()=>{ state.pot.water=true; },
+        wrong:{juice:"ジュースの カレーは しょっぱいかも…", milk:"ぎゅうにゅうは また こんど！"} },
+
+      { say:"ふたを して コトコト にこもう！",
+        tray:["lid","ladle","knife"],
+        need:["lid"], wait:3200,
+        hit:()=>{ state.pot.lid=true; },
+        waitSay:"コトコト コトコト… いいにおい！",
+        after:()=>{ state.pot.lid=false; state.pot.boiled=true; },
+        wrong:{ladle:"さきに ふたを しよう", knife:"ほうちょうは おしまい！"} },
+
+      { say:"カレールーを いれよう！",
+        tray:["roux","sugar","salt"],
+        need:["roux"],
+        hit:()=>{ state.pot.roux=true; state.pot.color="#B4651E"; },
+        wrong:{sugar:"あまい カレーに なっちゃう！", salt:"しおは いれなくて だいじょうぶ"} },
+
+      { say:"おたまで もういちど まぜたら できあがり！",
+        mode:"stir", times:3,
+        tray:["ladle","spoon","knife"],
+        need:["ladle"],
+        hit:()=>{ state.pot.stir++; },
+        wrong:{spoon:"スプーンは たべる とき！", knife:"ほうちょうは おしまい！"} }
+    ],
+    clear:"カレーが できた！ いいにおい〜"
+  },
+  {
+    id:"plate", scene:"table", name:"もりつけ", emoji:"🍛",
+    intro:"ステージ 3 ・ もりつけ",
+    introText:"おさらに きれいに もりつけよう！",
+    steps:[
+      { say:"しょっきだなを タップして、カレーの おさらを だそう！",
+        mode:"pick", tray:[], need:["plate"],
+        hit:()=>{ state.dish.plate=true; },
+        wrong:{ bowl:"どんぶりも いいけど… カレーざらを さがそう",
+                cup:"コップでは たべられないよ",
+                spoon:"スプーンは いちばん さいごだよ",
+                fork:"フォークは つかわないよ",
+                scoop:"ごはんは そのあとでね",
+                ladle:"カレーは おさらを だしてから！" } },
+
+      { say:"すいはんきを あけて、ごはんを 2かい よそおう！",
+        mode:"pick", tray:[], need:["scoop"], repeat:2,
+        hit:()=>{ state.dish.rice++; },
+        wrong:{ ladle:"さきに ごはんを よそおう",
+                plate:"おさらは もう だしたよ", bowl:"どんぶりは つかわないよ",
+                cup:"コップは つかわないよ", spoon:"スプーンは さいごだよ",
+                fork:"フォークは つかわないよ" } },
+
+      { say:"おなべを タップして、カレーを 2かい かけよう！",
+        mode:"pick", tray:[], need:["ladle"], repeat:2,
+        hit:()=>{ state.dish.curry++; },
+        wrong:{ scoop:"ごはんは もう よそったよ",
+                plate:"おさらは もう だしたよ", bowl:"どんぶりは つかわないよ",
+                cup:"コップは つかわないよ", spoon:"もうすこし まってね",
+                fork:"フォークは つかわないよ" } },
+
+      { say:"さいごに しょっきだなから スプーンを だそう！",
+        mode:"pick", tray:[], need:["spoon"],
+        hit:()=>{ state.dish.spoon=true; },
+        wrong:{ fork:"カレーは スプーンが たべやすいよ",
+                plate:"おさらは もう だしたよ", bowl:"どんぶりは つかわないよ",
+                cup:"コップは また こんどね", scoop:"ごはんは よそったよ",
+                ladle:"カレーは かけたよ" } }
+    ],
+    clear:"できあがり！ いただきまーす！"
+  }
+];
+
+/* ならびかえ（まいかい ちがう ばしょに でる） */
+function shuffled(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    const t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+const GRATIN_STAGES = [
+  {
+    id:"shop", scene:"shop", name:"スーパー", emoji:"🛒",
+    intro:"ステージ 1 ・ スーパー",
+    introText:"グラタンの ざいりょうを かごに いれよう！",
+    steps:[{
+      say:"かいものリストの ものを ぜんぶ かごに いれてね",
+      shuffle:true,
+      tray:["macaroni","milk","onion","chicken","cheese","apple","banana","ice","juice","snack","fish","egg"],
+      need:["macaroni","milk","onion","chicken","cheese"],
+      hit:id=>{ state.cart.push(id); }
+    }],
+    clear:"かいもの できたね！ おうちに かえろう"
+  },
+  {
+    id:"kitchen", scene:"kitchen", name:"キッチン", emoji:"🍳",
+    intro:"ステージ 2 ・ キッチン",
+    introText:"いためて、ホワイトソースを つくろう！",
+    steps:[
+      { say:"たまねぎと とりにくを まないたに のせよう！",
+        mode:"chop", chops:3, listTitle:"きる<br>もの",
+        tray:["onion","chicken","macaroni","milk","cheese"],
+        need:["onion","chicken"],
+        hit:id=>{ state.cut.push(id); },
+        wrong:{ macaroni:"マカロニは きらなくて いいよ", milk:"ぎゅうにゅうは あとでね",
+                cheese:"チーズは さいごの おたのしみ" } },
+
+      { say:"きった ざいりょうを なべに いれよう！",
+        listTitle:"いれる<br>もの",
+        tray:["onionCut","chickenCut","milk","cheese"],
+        need:["onionCut","chickenCut"],
+        hit:()=>{ state.pot.food++; },
+        wrong:{ milk:"さきに ざいりょうを いれよう", cheese:"チーズは オーブンの まえだよ" } },
+
+      { say:"おたまを えらんで、なべの なかを いためよう！",
+        mode:"stir", times:3,
+        tray:["ladle","knife","scoop"],
+        need:["ladle"],
+        hold:()=>{ state.pot.fire = true; },
+        hit:()=>{ state.pot.fire=true; state.pot.stir++; },
+        wrong:{ knife:"もう きらなくて いいよ", scoop:"しゃもじは ごはんの どうぐ！" } },
+
+      { say:"ぎゅうにゅうを いれて ホワイトソースに しよう！",
+        tray:["milk","water","juice"],
+        need:["milk"],
+        hit:()=>{ state.pot.water=true; state.pot.color="#FBF3E2"; },
+        wrong:{ water:"おみずだと あじが うすいよ", juice:"ジュースは のむ ものだよ" } },
+
+      { say:"おたまで まぜて とろとろに しよう！",
+        mode:"stir", times:3,
+        tray:["ladle","spoon","knife"],
+        need:["ladle"],
+        hit:()=>{ state.pot.stir++; },
+        wrong:{ spoon:"スプーンは たべる とき！", knife:"ほうちょうは おしまい！" } },
+
+      { say:"ゆでた マカロニを いれよう！",
+        tray:["macaroni","cheese","salt"],
+        need:["macaroni"],
+        hit:()=>{ state.pot.food = Math.min(state.pot.food + 1, 4); },
+        wrong:{ cheese:"チーズは やく まえに のせるよ", salt:"しおは いれなくて だいじょうぶ" } },
+
+      { say:"さいごに もういちど まぜたら ソースの できあがり！",
+        mode:"stir", times:3,
+        tray:["ladle","scoop","spoon"],
+        need:["ladle"],
+        hit:()=>{ state.pot.stir++; },
+        wrong:{ scoop:"しゃもじは ごはんの どうぐ！", spoon:"スプーンは たべる とき！" } }
+    ],
+    clear:"ホワイトソースが できた！ いいにおい〜"
+  },
+  {
+    id:"bake", scene:"oven", name:"オーブン", emoji:"🧀",
+    intro:"ステージ 3 ・ オーブン",
+    introText:"もりつけて、こんがり やこう！",
+    steps:[
+      { say:"しょっきだなを タップして グラタンざらを だそう！",
+        mode:"pick", tray:[], need:["gratindish"],
+        hit:()=>{ state.dish.plate=true; },
+        wrong:{ bowl:"どんぶりは オーブンに いれられないよ",
+                cup:"コップでは やけないよ",
+                spoon:"スプーンは たべる とき！", fork:"フォークは つかわないよ",
+                ladle:"さきに おさらを だそう", cheese:"チーズは さいごに のせるよ" } },
+
+      { say:"おなべを タップして ソースを 2かい いれよう！",
+        mode:"pick", tray:[], need:["ladle"], repeat:2,
+        hit:()=>{ state.dish.sauce++; },
+        wrong:{ cheese:"ソースを いれてから チーズだよ",
+                gratindish:"おさらは もう だしたよ", bowl:"どんぶりは つかわないよ",
+                cup:"コップは つかわないよ", spoon:"スプーンは さいごだよ",
+                fork:"フォークは つかわないよ" } },
+
+      { say:"チーズを たっぷり 2かい のせよう！",
+        mode:"pick", tray:[], need:["cheese"], repeat:2,
+        hit:()=>{ state.dish.cheese++; },
+        wrong:{ ladle:"ソースは もう いれたよ",
+                gratindish:"おさらは もう だしたよ", bowl:"どんぶりは つかわないよ",
+                cup:"コップは つかわないよ", spoon:"スプーンは さいごだよ",
+                fork:"フォークは つかわないよ" } },
+
+      { say:"オーブンに いれて こんがり やこう！",
+        mode:"pick", tray:[], need:["oven"],
+        wait:4200, waitSay:"ジュージュー… こんがり やけてきたよ！",
+        hit:()=>{ state.dish.baking = true; },
+        after:()=>{ state.dish.baking=false; state.dish.baked=true; },
+        wrong:{ cheese:"チーズは もう のせたよ", ladle:"ソースは もう いれたよ",
+                gratindish:"おさらは オーブンに いれるよ" } }
+    ],
+    clear:"こんがり やけた！ アツアツだよ"
+  }
+];
+
+const HAMBURG_STAGES = [
+  {
+    id:"shop", scene:"shop", name:"スーパー", emoji:"🛒",
+    intro:"ステージ 1 ・ スーパー",
+    introText:"ハンバーグの ざいりょうを かごに いれよう！",
+    steps:[{
+      say:"かいものリストの ものを ぜんぶ かごに いれてね",
+      shuffle:true,
+      tray:["mince","onion","egg","panko","ketchup","apple","banana","ice","juice","snack","fish","milk"],
+      need:["mince","onion","egg","panko","ketchup"],
+      hit:id=>{ state.cart.push(id); }
+    }],
+    clear:"かいもの できたね！ おうちに かえろう"
+  },
+  {
+    id:"kitchen", scene:"kitchen", name:"キッチン", emoji:"🍳",
+    intro:"ステージ 2 ・ キッチン",
+    introText:"こねて、まるめて、ジューッと やこう！",
+    steps:[
+      { say:"たまねぎを まないたに のせて きろう！",
+        mode:"chop", chops:3,
+        tray:["onion","mince","egg","panko","ketchup"],
+        need:["onion"],
+        hit:id=>{ state.cut.push(id); },
+        wrong:{ mince:"ひきにくは きらなくて いいよ", egg:"たまごは きれないよ",
+                panko:"パンこは そのまま つかうよ", ketchup:"ケチャップは さいごだよ" } },
+
+      { say:"ボウルに ざいりょうを ぜんぶ いれよう！",
+        vessel:"bowl", listTitle:"いれる<br>もの",
+        tray:["mince","onionCut","egg","panko","ketchup"],
+        need:["mince","onionCut","egg","panko"],
+        hit:()=>{ state.pot.food++; },
+        wrong:{ ketchup:"ケチャップは さいごに かけるよ" } },
+
+      { say:"おたまを えらんで、ボウルの なかを よく こねよう！",
+        vessel:"bowl", mode:"stir", times:3,
+        tray:["ladle","knife","scoop"],
+        need:["ladle"],
+        hit:()=>{ state.pot.stir++; },
+        wrong:{ knife:"もう きらなくて いいよ", scoop:"しゃもじは ごはんの どうぐ！" } },
+
+      { say:"まるめた たねを フライパンに いれよう！",
+        vessel:"pan",
+        tray:["patty","ketchup","egg"],
+        need:["patty"],
+        hit:()=>{ state.pot.patty=true; state.pot.fire=true; },
+        wrong:{ ketchup:"やいてから かけようね", egg:"たまごは もう いれたよ" } },
+
+      { say:"ふたを して じっくり やこう！",
+        vessel:"pan",
+        tray:["lid","turner","knife"],
+        need:["lid"], wait:3400,
+        waitSay:"ジュージュー… いいにおい！",
+        hit:()=>{ state.pot.lid=true; },
+        after:()=>{ state.pot.lid=false; state.pot.cooked=true; },
+        wrong:{ turner:"さきに ふたを しよう", knife:"ほうちょうは おしまい！" } }
+    ],
+    clear:"こんがり やけた！ ジューシー〜"
+  },
+  {
+    id:"serve", scene:"serve", name:"もりつけ", emoji:"🍽️",
+    intro:"ステージ 3 ・ もりつけ",
+    introText:"おさらに のせて、ソースを かけよう！",
+    steps:[
+      { say:"しょっきだなを タップして おさらを だそう！",
+        mode:"pick", tray:[], need:["plate"],
+        hit:()=>{ state.dish.plate=true; },
+        wrong:{ bowl:"どんぶりも いいけど… おさらを だそう", cup:"コップでは たべられないよ",
+                spoon:"スプーンは つかわないよ", fork:"フォークは さいごに だそう",
+                turner:"さきに おさらを だそう", ketchup:"ソースは さいごだよ" } },
+
+      { say:"フライパンを タップして、ハンバーグを おさらに のせよう！",
+        mode:"pick", tray:[], need:["turner"],
+        hit:()=>{ state.dish.patty=true; },
+        wrong:{ ketchup:"ハンバーグを のせてから！", plate:"おさらは もう だしたよ",
+                bowl:"どんぶりは つかわないよ", cup:"コップは つかわないよ",
+                spoon:"スプーンは つかわないよ", fork:"フォークは さいごだよ" } },
+
+      { say:"ケチャップソースを 2かい かけよう！",
+        mode:"pick", tray:[], need:["ketchup"], repeat:2,
+        hit:()=>{ state.dish.sauce++; },
+        wrong:{ turner:"ハンバーグは もう のせたよ", plate:"おさらは もう だしたよ",
+                bowl:"どんぶりは つかわないよ", cup:"コップは つかわないよ",
+                spoon:"スプーンは つかわないよ", fork:"フォークは さいごだよ" } },
+
+      { say:"さいごに しょっきだなから フォークを だそう！",
+        mode:"pick", tray:[], need:["fork"],
+        hit:()=>{ state.dish.fork=true; },
+        wrong:{ spoon:"ハンバーグは フォークが たべやすいよ", plate:"おさらは もう だしたよ",
+                bowl:"どんぶりは つかわないよ", cup:"コップは また こんどね",
+                turner:"ハンバーグは もう のせたよ", ketchup:"ソースは もう かけたよ" } }
+    ],
+    clear:"できあがり！ いただきまーす！"
+  }
+];
+
+const RECIPES = {
+  curry:  { key:"curry",  name:"カレーライス", emoji:"🍛", stages:CURRY_STAGES,  finish:()=>finishedCurry() },
+  gratin: { key:"gratin", name:"グラタン",     emoji:"🧀", stages:GRATIN_STAGES, finish:()=>finishedGratin() },
+  hamburg:{ key:"hamburg",name:"ハンバーグ",   emoji:"🍽️", stages:HAMBURG_STAGES,finish:()=>finishedHamburg() }
+};
+let recipeKey = "curry";
+let STAGES = RECIPES.curry.stages;
+
+const PRAISE = ["じょうず！","いいね！","やったね！","すごい！","ばっちり！","その ちょうし！"];
+const NUDGE  = ["うーん、ちがうかも？","もういちど みてみよう","それは また こんどね"];
+
+/* ---------------------------------------------------------------
+   3. じょうたい
+   --------------------------------------------------------------- */
+let state, stageIdx = 0, stepIdx = 0, hits = {}, busy = false;
+let voiceOn = true;
+
+function resetState(){
+  state = {
+    cart:[], cut:[], act:null, open:null, openAnim:false,
+    pot:{food:0, fire:false, stir:0, water:false, lid:false, boiled:false, roux:false, color:null, patty:false, cooked:false},
+    dish:{plate:false, rice:0, curry:0, spoon:false, sauce:0, cheese:0, baking:false, baked:false, patty:false, fork:false}
+  };
+  stageIdx = 0; stepIdx = 0; hits = {}; busy = false;
+}
+
+/* ---------------------------------------------------------------
+   4. おと と こえ
+   --------------------------------------------------------------- */
+let actx = null;
+function beep(freqs, dur=.12, type="sine"){
+  if(!voiceOn) return;
+  try{
+    actx = actx || new (window.AudioContext||window.webkitAudioContext)();
+    freqs.forEach((f,i)=>{
+      const o = actx.createOscillator(), g = actx.createGain();
+      o.type = type; o.frequency.value = f;
+      const t = actx.currentTime + i*dur;
+      g.gain.setValueAtTime(.0001,t);
+      g.gain.exponentialRampToValueAtTime(.22,t+.02);
+      g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+      o.connect(g); g.connect(actx.destination);
+      o.start(t); o.stop(t+dur+.02);
+    });
+  }catch(e){}
+}
+const sndGood  = ()=>beep([784,1046],.12);
+const sndBad   = ()=>beep([300,220],.14,"triangle");
+const sndClear = ()=>beep([523,659,784,1046],.16);
+
+/* === こえ ===
+   voice/ フォルダに ろくおんファイルが あれば それを ながし、
+   なければ ブラウザの よみあげ（きかいおんせい）に なります。
+   ろくおんだけを つかいたい ときは VOICE_ON_MISSING を "silent" に してください。 */
+const VOICE_ON_MISSING = "tts";                  /* "tts" または "silent" */
+const VOICE_EXT = ["m4a","mp3","webm","wav"];    /* この じゅんばんで さがします */
+const voiceCache = {};
+let curAudio = null;
+/* voice/on.txt が あれば ろくおんファイルを さがします（むだな つうしんを ふせぐ） */
+let voiceFolder = false;
+try{ fetch("voice/on.txt", {cache:"no-store"}).then(r=>{ voiceFolder = r.ok; }).catch(()=>{}); }catch(e){}
+
+/* もじれつから ファイルめいを つくる（かならず おなじ なまえに なる） */
+function voiceKey(t){
+  let h = 2166136261;
+  for(let i=0;i<t.length;i++){ h ^= t.charCodeAt(i); h = Math.imul(h,16777619); }
+  const tag = t.replace(/[^ぁ-んァ-ヶー一-龥0-9A-Za-z]/g,"").slice(0,12);
+  return tag + "_" + (h>>>0).toString(36).slice(0,5);
+}
+
+function stirPrompt(st, n){
+  return st.vessel === "bowl"
+    ? `ボウルの なかを ${n}かい タップして こねよう！`
+    : `なべの なかを ${n}かい タップして ぐるぐる！`;
+}
+
+function tts(text){
+  if(!window.speechSynthesis) return;
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "ja-JP"; u.rate = .95; u.pitch = 1.25;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+function say(text){
+  if(!voiceOn || !text) return;
+  if(curAudio){ try{ curAudio.pause(); }catch(e){} curAudio = null; }
+  if(window.speechSynthesis) speechSynthesis.cancel();
+
+  const id = voiceKey(text);
+  if(!voiceFolder || voiceCache[id] === "none"){
+    if(VOICE_ON_MISSING === "tts") tts(text);
+    return;
+  }
+  const a = document.createElement("audio");
+  a.preload = "auto";
+  VOICE_EXT.forEach(ext=>{
+    const src = document.createElement("source");
+    src.src = "voice/" + encodeURIComponent(id) + "." + ext;
+    a.appendChild(src);
+  });
+  curAudio = a;
+  const pr = a.play();
+  if(pr && pr.catch) pr.catch(()=>{});
+  /* ぜんぶの ファイルが なければ networkState が 3 に なる */
+  let tries = 0;
+  const check = ()=>{
+    if(curAudio !== a) return;
+    if(a.networkState === 3){
+      voiceCache[id] = "none";
+      if(VOICE_ON_MISSING === "tts") tts(text);
+      return;
+    }
+    if(a.readyState >= 2){ voiceCache[id] = "ok"; return; }
+    if(++tries < 12) setTimeout(check, 120);
+  };
+  setTimeout(check, 100);
+}
+
+/* ろくおんページ（record.html）が よみとる、ぜんぶの セリフ */
+function allVoiceLines(){
+  const out = [], seen = {};
+  const add = (t, group)=>{
+    if(!t || seen[t]) return;
+    seen[t] = 1;
+    out.push({ id:voiceKey(t), text:t, group:group });
+  };
+  Object.keys(RECIPES).forEach(k=>{
+    const r = RECIPES[k];
+    r.stages.forEach(stg=>{
+      add(stg.intro + "。" + stg.introText, r.name + "／ステージ");
+      add(stg.name + "クリア！ " + stg.clear, r.name + "／ステージ");
+      stg.steps.forEach(st=>{
+        add(st.say, r.name + "／" + stg.name);
+        if(st.waitSay) add(st.waitSay, r.name + "／" + stg.name);
+        if(st.mode === "chop"){
+          st.need.forEach(id=>{
+            add(`${LABEL[id]}を ${st.chops||3}かい タップして トントン！`, r.name + "／きる");
+            add(`${LABEL[id]} きれたね！`, r.name + "／きる");
+          });
+        }
+        if(st.mode === "stir"){
+          add(stirPrompt(st, st.times||3), r.name + "／まぜる");
+          add("よく まざったね！", "まぜる");
+        }
+        if(st.wrong) Object.keys(st.wrong).forEach(w=>
+          add(st.wrong[w], r.name + "／" + stg.name + "（まちがえた とき）"));
+      });
+    });
+  });
+  PRAISE.forEach(t=>add(t, "ほめことば"));
+  NUDGE.forEach(t=>add(t, "ヒント"));
+  add("できあがり！ いただきまーす！", "できあがり");
+  return out;
+}
+window.allVoiceLines = allVoiceLines;
+
+/* ---------------------------------------------------------------
+   5. シーンの え
+   --------------------------------------------------------------- */
+/* SVGの なかみだけ とりだして、シーンに おきなおす */
+function iconGroup(id, x, y, scale){
+  const inner = ART[id].replace(/<svg[^>]*>/,"").replace(/<\/svg>/,"");
+  return `<g transform="translate(${x} ${y}) scale(${scale})"
+    stroke="#5A4632" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"
+    fill="none">${inner}</g>`;
+}
+
+function sceneShop(){
+  const list = STAGES[0].steps[0].need.map(id=>
+    `<li class="${state.cart.includes(id)?'got':''}">${ART[id]}<span>${LABEL[id]}</span></li>`).join("");
+  const items = state.cart.map((id,i)=>
+    iconGroup(id, 156 + (i%3)*40, i<3 ? 148 : 110, .62)).join("");
+  return `
+  <div class="shoplist"><h3>かいものリスト</h3><ul>${list}</ul></div>
+  <svg viewBox="0 0 320 340" preserveAspectRatio="xMidYMid meet">
+    <rect width="320" height="340" fill="#FFF6E0"/>
+    <g stroke="#5A4632" stroke-width="3" stroke-linejoin="round" fill="none">
+      <path d="M156 10v16M234 10v16" stroke-width="4"/>
+      <rect x="138" y="24" width="114" height="40" rx="12" fill="#D8A165"/>
+      <text x="195" y="52" font-size="21" text-anchor="middle" fill="#FFF6E0"
+        stroke="none" font-weight="800">スーパー</text>
+      <rect x="0" y="268" width="320" height="72" fill="#EFD9AE" stroke="none"/>
+      <path d="M0 268h320" stroke-width="4"/>
+    </g>
+    ${items}
+    <g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round" fill="none">
+      <path d="M148 170h136l-16 66h-104z" fill="#8FD1F0"/>
+      <path d="M158 188h116M164 212h104" stroke="#5FA0BC" stroke-width="3"/>
+      <path d="M148 170l-10-18h-18" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="176" cy="252" r="11" fill="#5A4632"/>
+      <circle cx="252" cy="252" r="11" fill="#5A4632"/>
+    </g>
+  </svg>`;
+}
+
+function sceneKitchen(){
+  const p = state.pot;
+  const act = state.act, mixing = act && act.mode === "stir";
+  const vessel = currentStep().vessel || "pot";
+  const soup = p.color || (p.water ? "#D3E9E4" : "#F3E7C6");
+
+  /* なかみ（まぜると ぐるぐる まわる） */
+  let bits = "";
+  for(let i=0;i<Math.min(p.food,4);i++){
+    const col = ["#F5893C","#D9A566","#EBD7EA","#FFB3C0"][i];
+    const a2 = i*90 * Math.PI/180;
+    const bx = 160 + Math.cos(a2)*24 - 10, by = 178 + Math.sin(a2)*16 - 8;
+    bits += `<rect x="${bx.toFixed(1)}" y="${by.toFixed(1)}" width="20" height="16" rx="5"
+      fill="${col}" stroke="#5A4632" stroke-width="2.6"/>`;
+  }
+  const spin = mixing ? (act.count - (act.anim?1:0))*120 : 0;
+  const spinAnim = (mixing && act.anim) ? `<animateTransform attributeName="transform"
+      type="rotate" from="0 160 178" to="120 160 178" dur=".45s" fill="freeze"/>` : "";
+  const stew = `<g transform="rotate(${spin} 160 178)"><g>${spinAnim}${bits}</g></g>`;
+
+  const bubbles = (vessel==="pot" && (p.stir>0 || p.boiled || mixing)) ? `
+    <circle cx="140" cy="180" r="6" fill="#FFF" opacity=".7" stroke="none">
+      <animate attributeName="cy" values="188;158" dur="1.8s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values=".8;0" dur="1.8s" repeatCount="indefinite"/></circle>
+    <circle cx="180" cy="184" r="5" fill="#FFF" opacity=".6" stroke="none">
+      <animate attributeName="cy" values="190;160" dur="2.3s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values=".8;0" dur="2.3s" repeatCount="indefinite"/></circle>` : "";
+  const steam = (p.boiled || p.lid || p.cooked) ? `
+    <g stroke="#C9D6DE" stroke-width="6" fill="none" stroke-linecap="round">
+      <path d="M138 128c-9-11 9-15 0-27" opacity=".9">
+        <animate attributeName="opacity" values=".2;.9;.2" dur="2.6s" repeatCount="indefinite"/></path>
+      <path d="M182 126c-9-11 9-15 0-27" opacity=".6">
+        <animate attributeName="opacity" values=".8;.2;.8" dur="2.6s" repeatCount="indefinite"/></path>
+    </g>` : "";
+  const flame = f => `<path d="M${f} 232c0-12 9-15 9-24 4 4 6 9 6 13 3-3 4-7 4-11 7 7 10 14 10 22z"
+      fill="#FF9F43" stroke="none"><animate attributeName="opacity" values="1;.5;1"
+      dur=".55s" repeatCount="indefinite"/></path>`;
+  const fire = (p.fire && vessel !== "bowl") ? flame(112) + flame(152) + flame(192) : "";
+  const burner = vessel === "bowl" ? "" :
+    `<rect x="95" y="230" width="130" height="13" rx="6" fill="#8A939B"
+       stroke="#5A4632" stroke-width="3.4"/>`;
+
+  /* --- いれもの（なべ・ボウル・フライパン） --- */
+  let vesselG;
+  if(vessel === "bowl"){
+    const mix = p.food>0 ? `<ellipse cx="160" cy="180" rx="${30+p.food*6}"
+        ry="${10+p.food*1.5}" fill="#F0A79B" stroke="#5A4632" stroke-width="3"/>` : "";
+    vesselG = `
+      <g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round" fill="none">
+        <path d="M100 158h120l-14 56a22 22 0 01-21 16h-50a22 22 0 01-21-16z" fill="#EAF2F5"/>
+        <ellipse cx="160" cy="158" rx="60" ry="16" fill="#FFFDF8"/>
+        ${mix}<g transform="translate(0 8)">${stew}</g>
+        <ellipse cx="160" cy="158" rx="60" ry="16" fill="none"/>
+      </g>`;
+  }else if(vessel === "pan"){
+    const patty = p.patty ? `
+      <ellipse cx="160" cy="192" rx="36" ry="16" fill="${p.cooked?"#6E4222":"#DE8E7C"}"
+        stroke="#5A4632" stroke-width="3.4"/>
+      <ellipse cx="160" cy="187" rx="36" ry="16" fill="${p.cooked?"#96602F":"#F2B39E"}"
+        stroke="#5A4632" stroke-width="3.4"/>
+      ${p.cooked ? `<path d="M142 182l10 8M160 180l10 8" stroke="#5A3A20" stroke-width="3.4"/>` : ""}` : "";
+    const lid = p.lid ? `<path d="M98 178a62 30 0 01124 0z" fill="#95A3AE"/>
+      <path d="M160 148v10" stroke-width="5"/>
+      <circle cx="160" cy="144" r="8" fill="#D8A165"/>` : "";
+    vesselG = `
+      <g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round" fill="none">
+        <path d="M98 178h124l-9 30a22 22 0 01-21 14h-64a22 22 0 01-21-14z" fill="#6E7B87"/>
+        <ellipse cx="160" cy="178" rx="62" ry="17" fill="#4E5A63"/>
+        ${patty}
+        <ellipse cx="160" cy="178" rx="62" ry="17" fill="none"/>
+        <rect x="220" y="170" width="80" height="13" rx="6" fill="#8A5A34"/>
+        ${lid}
+      </g>`;
+  }else{
+    const lid = p.lid ? `<g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round">
+        <path d="M98 146a62 30 0 01124 0z" fill="#95A3AE"/>
+        <path d="M160 116v10" stroke-width="5"/>
+        <circle cx="160" cy="112" r="8" fill="#D8A165"/></g>` : "";
+    vesselG = `
+      <g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round" fill="none">
+        <path d="M105 144h110v52a22 22 0 01-22 22h-66a22 22 0 01-22-22z" fill="#6E7B87"/>
+        <path d="M112 154h96v40c0 9-6 13-15 13h-66c-9 0-15-4-15-13z" fill="${soup}" stroke="none"/>
+        ${stew}${bubbles}
+        <rect x="96" y="132" width="128" height="13" rx="6" fill="#95A3AE"/>
+        <path d="M96 162H80M224 162h16" stroke-width="8" stroke-linecap="round"/>
+        ${lid}
+      </g>`;
+  }
+
+  /* --- おたま（もっている あいだ うごく） --- */
+  const ladleInner = ART.ladle.replace(/<svg[^>]*>/,"").replace(/<\/svg>/,"");
+  const swing = (mixing && act.anim) ? `<animateTransform attributeName="transform"
+      type="rotate" values="0;-22;18;0" dur=".5s" repeatCount="1"/>` : "";
+  const ladleY = vessel === "bowl" ? 130 : 116;
+  const ladle = mixing ? `<g transform="translate(196 ${ladleY})"><g>${swing}
+      <g transform="scale(1.5) translate(-30 -10)" stroke="#5A4632" stroke-width="2.6"
+        stroke-linejoin="round" stroke-linecap="round" fill="none">${ladleInner}</g>
+    </g></g>` : "";
+  const hintY = vessel === "bowl" ? 176 : 172;
+  const hint = (mixing && act.count < act.total) ? `
+    <ellipse cx="160" cy="${hintY}" rx="66" ry="34" fill="none" stroke="#FF9EB5" stroke-width="4"
+      stroke-dasharray="9 12" opacity=".95">
+      <animate attributeName="rx" values="60;70;60" dur="1.6s" repeatCount="indefinite"/>
+      <animate attributeName="ry" values="30;38;30" dur="1.6s" repeatCount="indefinite"/></ellipse>` : "";
+  const target = mixing ? `<ellipse class="stirTarget" cx="160" cy="${hintY+6}" rx="70" ry="46"
+      fill="#FFF" opacity="0"/>` : "";
+
+  return `<svg viewBox="0 0 320 340" preserveAspectRatio="xMidYMid meet">
+    <rect width="320" height="340" fill="#FFF6E0"/>
+    <g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round" fill="none">
+      <rect x="104" y="14" width="112" height="72" rx="10" fill="#BFE9F5"/>
+      <circle cx="140" cy="42" r="12" fill="#FFF" stroke="none"/>
+      <circle cx="154" cy="46" r="9" fill="#FFF" stroke="none"/>
+      <path d="M160 14v72M104 50h112" stroke-width="3"/>
+      <rect x="96" y="86" width="128" height="11" rx="5" fill="#D8A165"/>
+    </g>
+    ${steam}
+    <g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round" fill="none">
+      <rect x="0" y="244" width="320" height="96" fill="#D8A165" stroke="none"/>
+      <rect x="0" y="236" width="320" height="10" rx="5" fill="#A9713F" stroke="none"/>
+      <path d="M0 236h320" stroke-width="3"/>
+      <rect x="14" y="216" width="78" height="20" rx="9" fill="#E6BE85"/>
+      <path d="M92 226h10" stroke-width="6" stroke-linecap="round"/>
+      <rect x="250" y="212" width="48" height="24" rx="7" fill="#E08B62"/>
+      <circle cx="262" cy="204" r="10" fill="#8ED45C"/>
+      <circle cx="278" cy="196" r="12" fill="#5FA83C"/>
+      <circle cx="292" cy="206" r="9" fill="#8ED45C"/>
+    </g>
+    ${fire}${vesselG}${burner}
+    ${ladle}${hint}${target}
+  </svg>`;
+}
+
+/* ==== まないたシーン（のせる → トントン きる） ==== */
+function chopPieces(id, cuts, chops){
+  const inner = ART[id].replace(/<svg[^>]*>/,"").replace(/<\/svg>/,"");
+  if(cuts >= chops){                      // きりおわり
+    const c = ART[CUT[id]].replace(/<svg[^>]*>/,"").replace(/<\/svg>/,"");
+    return c;
+  }
+  const n = cuts + 1;                     // 1 → 2 → 3 きれ
+  const gap = n === 2 ? 12 : 9;
+  let out = "";
+  for(let i=0;i<n;i++){
+    const dy = (i - (n-1)/2) * gap;
+    out += `<g transform="translate(0 ${dy})"><g clip-path="url(#cl${n}_${i})">${inner}</g></g>`;
+  }
+  return out;
+}
+
+function sceneChop(){
+  const b = state.act, st = currentStep(), chops = st.chops || 3;
+  const prep = state.cut.map((cid,i)=> iconGroup(CUT[cid], 50 + i*60, 22, .55)).join("");
+  const hint = b.cuts < chops ? `
+    <circle cx="160" cy="204" r="74" fill="none" stroke="#FF9EB5" stroke-width="4"
+      stroke-dasharray="9 12" opacity=".95">
+      <animate attributeName="r" values="68;80;68" dur="1.6s" repeatCount="indefinite"/>
+    </circle>` : "";
+  const knifeInner = ART.knife.replace(/<svg[^>]*>/,"").replace(/<\/svg>/,"");
+  const knife = `<g transform="translate(160 108)">
+      <g class="knife${b.anim?' go':''}">
+        <g transform="rotate(40) translate(-32 -30) scale(1.6)" stroke="#5A4632" stroke-width="2.6"
+          stroke-linejoin="round" stroke-linecap="round" fill="none">${knifeInner}</g>
+      </g></g>`;
+
+  return `<svg viewBox="0 0 320 340" preserveAspectRatio="xMidYMid meet">
+    <defs>
+      <clipPath id="cl1_0"><rect x="-20" y="-20" width="104" height="104"/></clipPath>
+      <clipPath id="cl2_0"><rect x="-20" y="-20" width="104" height="54"/></clipPath>
+      <clipPath id="cl2_1"><rect x="-20" y="34" width="104" height="50"/></clipPath>
+      <clipPath id="cl3_0"><rect x="-20" y="-20" width="104" height="46.7"/></clipPath>
+      <clipPath id="cl3_1"><rect x="-20" y="26.7" width="104" height="14.6"/></clipPath>
+      <clipPath id="cl3_2"><rect x="-20" y="41.3" width="104" height="42.7"/></clipPath>
+    </defs>
+    <rect width="320" height="340" fill="#FFF6E0"/>
+    <g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round" fill="none">
+      <rect x="24" y="16" width="272" height="46" rx="10" fill="#DDE6EA"/>
+      <rect x="14" y="62" width="292" height="11" rx="5" fill="#D8A165"/>
+      <rect x="0" y="268" width="320" height="72" fill="#D8A165" stroke="none"/>
+      <rect x="0" y="260" width="320" height="10" rx="5" fill="#A9713F" stroke="none"/>
+      <path d="M0 260h320" stroke-width="3"/>
+      <rect x="26" y="142" width="264" height="120" rx="22" fill="#E6BE85"/>
+      <path d="M290 182h16" stroke-width="7" stroke-linecap="round"/>
+    </g>
+    ${prep}
+    <g transform="translate(160 202) scale(1.45) translate(-32 -32)"
+      stroke="#5A4632" stroke-width="2.6" stroke-linejoin="round"
+      stroke-linecap="round" fill="none">${chopPieces(b.id, b.cuts, chops)}</g>
+    ${hint}${knife}
+    <circle class="chopTarget" cx="160" cy="204" r="88" fill="#FFF" opacity="0"/>
+  </svg>`;
+}
+
+/* ==== かぐ・かでんの なかみ ==== */
+const CONTENTS = {
+  cupboard:["plate","bowl","cup","spoon","fork"],
+  cooker:["scoop"],
+  pot:["ladle"]
+};
+
+/* とびら（ちょうつがい を じくに ひらく） */
+function doorGroup(hinge, inner, opened, anim){
+  if(!opened) return inner;
+  if(anim) return `<g transform="translate(${hinge} 0)"><g>
+      <animateTransform attributeName="transform" type="scale" from="1 1" to="0.13 1"
+        dur=".45s" fill="freeze"/>
+      <g transform="translate(${-hinge} 0)">${inner}</g></g></g>`;
+  return `<g transform="translate(${hinge} 0)"><g transform="scale(0.13 1)">
+      <g transform="translate(${-hinge} 0)">${inner}</g></g></g>`;
+}
+
+/* なかの ものを えらべる かたちに */
+function pickItem(id, x, y, sc, cx, cy, on){
+  const icon = iconGroup(id, x, y, sc);
+  if(!on) return icon;
+  return `<g class="pickTarget" data-id="${id}">${icon}
+    <circle cx="${cx}" cy="${cy}" r="26" fill="#FFF" opacity="0"/></g>`;
+}
+
+/* しょっきだな（なかみを いれかえられる） */
+function cupboardSVG(items, cupOn, anim){
+  const slot = [[14,62,34,82],[54,62,74,82],[94,62,114,82],[34,116,54,136],[78,116,98,136]];
+  const inside = items.map((id,i)=>
+    pickItem(id, slot[i][0], slot[i][1], .62, slot[i][2], slot[i][3], cupOn)).join("");
+  const doorFace = (x,knob) => `<g stroke="#5A4632" stroke-width="3.2" stroke-linejoin="round">
+      <rect x="${x}" y="42" width="61" height="130" rx="6" fill="#D8A165"/>
+      <rect x="${x+8}" y="52" width="45" height="110" rx="5" fill="#CFE8F2"/>
+      <circle cx="${knob}" cy="107" r="4.5" fill="#FFF6E0"/></g>`;
+  return `
+    <g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round" fill="none">
+      <rect x="8" y="26" width="130" height="150" rx="10" fill="#B98352"/>
+      <rect x="2" y="18" width="142" height="16" rx="7" fill="#A9713F"/>
+      <rect x="12" y="42" width="122" height="130" rx="6" fill="#F6E7C8"/>
+      <rect x="12" y="106" width="122" height="8" fill="#D8A165"/>
+      <rect x="12" y="164" width="122" height="8" fill="#D8A165"/>
+    </g>
+    ${inside}
+    ${doorGroup(12, doorFace(12, 68), cupOn, anim)}
+    ${doorGroup(134, doorFace(73, 78), cupOn, anim)}`;
+}
+
+/* うえ下に ひらく とびら（オーブン） */
+function doorGroupY(hinge, inner, opened, anim){
+  if(!opened) return inner;
+  if(anim) return `<g transform="translate(0 ${hinge})"><g>
+      <animateTransform attributeName="transform" type="scale" from="1 1" to="1 0.12"
+        dur=".45s" fill="freeze"/>
+      <g transform="translate(0 ${-hinge})">${inner}</g></g></g>`;
+  return `<g transform="translate(0 ${hinge})"><g transform="scale(1 0.12)">
+      <g transform="translate(0 ${-hinge})">${inner}</g></g></g>`;
+}
+
+function sceneTable(){
+  const d = state.dish, open = state.open, anim = state.openAnim;
+  const cupOn = open === "cupboard", cookOn = open === "cooker", potOn = open === "pot";
+
+  const cupboard = cupboardSVG(["plate","bowl","cup","spoon","fork"], cupOn, anim);
+
+  /* --- すいはんき --- */
+  const lidAnim = cookOn && anim
+    ? `<animateTransform attributeName="transform" type="rotate" from="0 198 120"
+        to="-62 198 120" dur=".55s" fill="freeze"/>` : "";
+  const lidStatic = (cookOn && !anim) ? ' transform="rotate(-62 198 120)"' : "";
+  const riceInside = cookOn ? `
+    <g stroke="#5A4632" stroke-width="3.2" stroke-linejoin="round">
+      <ellipse cx="248" cy="126" rx="49" ry="13" fill="#8A939B"/>
+      <ellipse cx="248" cy="125" rx="40" ry="9" fill="#E9E4D6" stroke="none"/>
+      <path d="M212 125a36 17 0 0172 0z" fill="#FFFDF5"/>
+    </g>
+    <g stroke="#C9D6DE" stroke-width="5" fill="none" stroke-linecap="round" opacity=".9">
+      <path d="M226 92c-7-9 7-13 0-22"><animate attributeName="opacity"
+        values=".3;1;.3" dur="2.4s" repeatCount="indefinite"/></path>
+      <path d="M272 90c-7-9 7-13 0-22"><animate attributeName="opacity"
+        values="1;.3;1" dur="2.4s" repeatCount="indefinite"/></path>
+    </g>
+    ${pickItem("scoop", 232, 66, .95, 262, 96, true)}` : "";
+  const cooker = `
+    <rect x="150" y="190" width="170" height="24" fill="#A9713F"/>
+    <g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round" fill="none">
+      <path d="M196 134a16 16 0 0116-16h72a16 16 0 0116 16v38a18 18 0 01-18 18h-68a18 18 0 01-18-18z"
+        fill="#F4F5F6"/>
+      <rect x="211" y="142" width="70" height="30" rx="7" fill="#E4EAEE"/>
+      <rect x="217" y="148" width="40" height="18" rx="4" fill="#9FD8E8"/>
+      <circle cx="270" cy="150" r="5" fill="#FF9EB5"/>
+      <circle cx="270" cy="164" r="5" fill="#FFF6E0"/>
+      <rect x="192" y="180" width="14" height="12" rx="4" fill="#D9DEE2"/>
+      <rect x="290" y="180" width="14" height="12" rx="4" fill="#D9DEE2"/>
+    </g>
+    ${riceInside}
+    <g${lidStatic}>${lidAnim}
+      <g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round" fill="none">
+        <path d="M206 96q42-30 84 0" stroke-width="5"/>
+        <rect x="234" y="84" width="30" height="14" rx="7" fill="#D9DEE2"/>
+        <rect x="190" y="96" width="116" height="28" rx="13" fill="#FCFDFD"/>
+        <rect x="286" y="104" width="16" height="11" rx="4" fill="#BFE9F5"/>
+        <circle cx="199" cy="112" r="5" fill="#D9DEE2"/>
+      </g>
+    </g>`;
+
+  /* --- テーブルと おなべ --- */
+  const potLadle = potOn ? pickItem("ladle", 232, 190, 1.3, 270, 224, true) : "";
+  const pot = `
+    <g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round" fill="none">
+      <path d="M226 250h82v28a20 20 0 01-20 20h-42a20 20 0 01-20-20z" fill="#6E7B87"/>
+      <path d="M232 258h70v20c0 7-5 11-13 11h-44c-8 0-13-4-13-11z" fill="#B4651E" stroke="none"/>
+      <rect x="220" y="240" width="94" height="12" rx="6" fill="#95A3AE"/>
+      <path d="M220 264h-10M314 264h6" stroke-width="7" stroke-linecap="round"/>
+    </g>${potLadle}`;
+
+  const plate = d.plate ? `<g stroke="#5A4632" stroke-width="3.6">
+      <ellipse cx="108" cy="272" rx="82" ry="30" fill="#FFF6E0"/>
+      <ellipse cx="108" cy="269" rx="66" ry="22" fill="#F6EEDA" stroke="none"/></g>` : "";
+  const rice = d.rice>0 ? `<path d="M52 274a48 ${13+d.rice*8} 0 0196 0z"
+      fill="#FFFDF5" stroke="#5A4632" stroke-width="3.6" stroke-linejoin="round"/>` : "";
+  const curry = d.curry>0 ? `<g stroke="#5A4632" stroke-width="3.6" stroke-linejoin="round">
+      <path d="M98 274a44 ${12+d.curry*8} 0 0188 0z" fill="#B4651E"/>
+      <circle cx="132" cy="258" r="7" fill="#F5893C" stroke-width="3"/>
+      <circle cx="158" cy="266" r="7" fill="#D9A566" stroke-width="3"/>
+      <circle cx="174" cy="254" r="6" fill="#FFB3C0" stroke-width="3"/></g>` : "";
+  const spoon = d.spoon ? `<g transform="translate(192 250) rotate(14)"
+      stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round">
+      <ellipse cx="0" cy="0" rx="10" ry="14" fill="#DDE6EA"/>
+      <rect x="-3.5" y="11" width="7" height="32" rx="3.5" fill="#DDE6EA"/></g>` : "";
+
+  /* --- タップできる かぐ --- */
+  const hint = (x,y,w,h) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="14"
+      fill="none" stroke="#FF9EB5" stroke-width="3.4" stroke-dasharray="9 13" opacity=".5">
+      <animate attributeName="opacity" values=".18;.7;.18" dur="2.2s" repeatCount="indefinite"/></rect>`;
+  const tap = (f,x,y,w,h) => open===f ? "" :
+    hint(x,y,w,h) + `<rect class="furniTarget" data-f="${f}" x="${x}" y="${y}"
+      width="${w}" height="${h}" fill="#FFF" opacity="0"/>`;
+  const targets = state.act ? "" :
+    tap("cupboard",6,22,136,158) + tap("cooker",186,82,124,112) + tap("pot",214,232,106,70);
+
+  return `<svg viewBox="0 0 320 340" preserveAspectRatio="xMidYMid meet">
+    <rect width="320" height="340" fill="#FFF1D6"/>
+    ${cupboard}${cooker}
+    <g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round" fill="none">
+      <rect x="0" y="214" width="320" height="126" fill="#C98F55" stroke="none"/>
+      <rect x="0" y="204" width="320" height="12" rx="6" fill="#A9713F" stroke="none"/>
+      <path d="M0 204h320" stroke-width="3"/>
+      <rect x="14" y="224" width="190" height="96" rx="16" fill="#FFD9E2"/>
+    </g>
+    ${plate}${rice}${curry}${spoon}${pot}${targets}
+  </svg>`;
+}
+
+/* ==== オーブンの ばめん（グラタン） ==== */
+function sceneOven(){
+  const d = state.dish, open = state.open, anim = state.openAnim;
+  const st = currentStep();
+  const cupOn = open === "cupboard", ovenOn = open === "oven", potOn = open === "pot";
+  const cupboard = cupboardSVG(["gratindish","bowl","cup","spoon","fork"], cupOn, anim);
+
+  /* --- オーブン --- */
+  const inOven = d.baking;
+  const glow = inOven ? `<rect x="214" y="130" width="98" height="52" rx="6" fill="#FF9F43"
+      opacity=".85"><animate attributeName="opacity" values=".55;.95;.55"
+      dur=".9s" repeatCount="indefinite"/></rect>` : "";
+  const bakingDish = inOven ? `
+    <g stroke="#5A4632" stroke-width="3" stroke-linejoin="round">
+      <ellipse cx="263" cy="162" rx="33" ry="12" fill="#FFF6E0"/>
+      <path d="M232 160a31 12 0 0162 0z" fill="#E8B15C"/>
+    </g>` : "";
+  const ovenDoor = `<g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round" fill="none">
+      <path d="M214 128h98v56h-98z M222 135h82v42h-82z" fill="#C9CFD3" fill-rule="evenodd"/>
+      <rect x="222" y="135" width="82" height="42" rx="4" fill="#8FA4B0" opacity=".3"/>
+      <rect x="222" y="135" width="82" height="42" rx="4" fill="none"/>
+      <rect x="210" y="120" width="106" height="9" rx="4.5" fill="#B9C0C5"/></g>`;
+  const oven = `
+    <rect x="150" y="190" width="170" height="24" fill="#A9713F"/>
+    <g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round" fill="none">
+      <rect x="208" y="94" width="110" height="96" rx="12" fill="#EAECEE"/>
+      <rect x="214" y="100" width="98" height="20" rx="6" fill="#D5D9DC"/>
+      <circle cx="225" cy="110" r="6" fill="#FFF6E0"/>
+      <circle cx="243" cy="110" r="6" fill="#FF9EB5"/>
+      <rect x="256" y="104" width="52" height="12" rx="4" fill="#3A4A55"/>
+      <rect x="214" y="130" width="98" height="52" rx="6" fill="#3A3F44"/>
+      <path d="M216 164h94" stroke="#8A939B" stroke-width="3"/>
+      <rect x="212" y="184" width="14" height="10" rx="4" fill="#D9DEE2"/>
+      <rect x="300" y="184" width="14" height="10" rx="4" fill="#D9DEE2"/>
+    </g>
+    ${glow}${bakingDish}
+    ${doorGroupY(184, ovenDoor, ovenOn, anim)}`;
+
+  /* --- なべ（ホワイトソース） --- */
+  const potLadle = potOn ? pickItem("ladle", 232, 190, 1.3, 270, 224, true) : "";
+  const pot = `
+    <g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round" fill="none">
+      <path d="M226 250h82v28a20 20 0 01-20 20h-42a20 20 0 01-20-20z" fill="#6E7B87"/>
+      <path d="M232 258h70v20c0 7-5 11-13 11h-44c-8 0-13-4-13-11z" fill="#FBF3E2" stroke="none"/>
+      <rect x="220" y="240" width="94" height="12" rx="6" fill="#95A3AE"/>
+      <path d="M220 264h-10M314 264h6" stroke-width="7" stroke-linecap="round"/>
+    </g>${potLadle}`;
+
+  /* --- チーズ（だいの うえ） --- */
+  const cheese = `<g class="pickTarget" data-id="cheese">
+      ${iconGroup("cheese", 142, 142, 1)}
+      <circle cx="176" cy="176" r="32" fill="#FFF" opacity="0"/></g>`;
+
+  /* --- テーブルの グラタンざら --- */
+  let dish = "";
+  if(d.plate && !inOven){
+    const mac = i => `<path d="M${i} 262a9 9 0 0118 0h-5a4 4 0 00-8 0z"
+        fill="#F2D27E" stroke="#5A4632" stroke-width="2.4"/>`;
+    const sauce = d.sauce>0 ? `<ellipse cx="94" cy="268" rx="${46+d.sauce*8}"
+        ry="${13+d.sauce*4}" fill="#FFFCF0" stroke="#5A4632" stroke-width="3"/>
+        ${d.sauce>1 ? mac(62)+mac(90)+mac(116) : mac(80)+mac(104)}` : "";
+    const shreds = d.cheese>0 && !d.baked ? `
+      <g fill="#F7CF5E" stroke="#5A4632" stroke-width="2.4">
+        <rect x="64" y="256" width="18" height="7" rx="3.5"/>
+        <rect x="88" y="250" width="18" height="7" rx="3.5"/>
+        <rect x="110" y="258" width="18" height="7" rx="3.5"/>
+        ${d.cheese>1 ? `<rect x="74" y="268" width="18" height="7" rx="3.5"/>
+        <rect x="102" y="270" width="18" height="7" rx="3.5"/>
+        <rect x="52" y="266" width="16" height="7" rx="3.5"/>` : ""}
+      </g>` : "";
+    const baked = d.baked ? `
+      <path d="M40 268a54 22 0 01108 0z" fill="#E8B15C" stroke="#5A4632" stroke-width="3.4"/>
+      <circle cx="72" cy="258" r="6" fill="#C97F35" stroke="none"/>
+      <circle cx="104" cy="254" r="5" fill="#C97F35" stroke="none"/>
+      <circle cx="126" cy="262" r="4" fill="#C97F35" stroke="none"/>
+      <g stroke="#C9D6DE" stroke-width="5" fill="none" stroke-linecap="round" opacity=".85">
+        <path d="M74 238c-7-9 7-13 0-22"><animate attributeName="opacity"
+          values=".3;1;.3" dur="2.2s" repeatCount="indefinite"/></path>
+        <path d="M116 236c-7-9 7-13 0-22"><animate attributeName="opacity"
+          values="1;.3;1" dur="2.2s" repeatCount="indefinite"/></path></g>` : "";
+    dish = `
+      <g stroke="#5A4632" stroke-width="3.6" stroke-linejoin="round">
+        <path d="M24 266H14a6 6 0 000 12h10M164 266h10a6 6 0 010 12h-10" fill="#FFF6E0"/>
+        <ellipse cx="94" cy="272" rx="70" ry="26" fill="#FFF6E0"/>
+        <ellipse cx="94" cy="269" rx="56" ry="18" fill="#F2EAD4" stroke="none"/>
+      </g>${sauce}${shreds}${baked}`;
+  }
+
+  /* --- タップできる ばしょ --- */
+  const hint = (x,y,w,h) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="14"
+      fill="none" stroke="#FF9EB5" stroke-width="3.4" stroke-dasharray="9 13" opacity=".5">
+      <animate attributeName="opacity" values=".18;.7;.18" dur="2.2s" repeatCount="indefinite"/></rect>`;
+  const tap = (f,x,y,w,h) => (open===f && !st.need.includes(f)) ? "" :
+    hint(x,y,w,h) + `<rect class="furniTarget" data-f="${f}" x="${x}" y="${y}"
+      width="${w}" height="${h}" fill="#FFF" opacity="0"/>`;
+  const targets = state.act ? "" :
+    tap("cupboard",6,22,136,158) + tap("oven",204,90,118,104) + tap("pot",214,232,106,70)
+    + hint(146,160,62,34);
+
+  return `<svg viewBox="0 0 320 340" preserveAspectRatio="xMidYMid meet">
+    <rect width="320" height="340" fill="#FFF1D6"/>
+    ${cupboard}${oven}
+    <g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round" fill="none">
+      <rect x="0" y="214" width="320" height="126" fill="#C98F55" stroke="none"/>
+      <rect x="0" y="204" width="320" height="12" rx="6" fill="#A9713F" stroke="none"/>
+      <path d="M0 204h320" stroke-width="3"/>
+      <rect x="10" y="226" width="176" height="94" rx="16" fill="#FFD9E2"/>
+    </g>
+    ${dish}${pot}${cheese}${targets}
+  </svg>`;
+}
+
+/* ==== もりつけの ばめん（ハンバーグ） ==== */
+function sceneServe(){
+  const d = state.dish, open = state.open, anim = state.openAnim;
+  const st = currentStep();
+  const cupOn = open === "cupboard", panOn = open === "pan";
+  const cupboard = cupboardSVG(["plate","bowl","cup","spoon","fork"], cupOn, anim);
+
+  /* --- コンロの うえの フライパン --- */
+  const panPatty = d.patty ? "" : `
+    <ellipse cx="252" cy="150" rx="30" ry="13" fill="#6E4222" stroke="#5A4632" stroke-width="3.2"/>
+    <ellipse cx="252" cy="145" rx="30" ry="13" fill="#96602F" stroke="#5A4632" stroke-width="3.2"/>
+    <path d="M238 141l8 6M254 139l8 6" stroke="#5A3A20" stroke-width="3"/>`;
+  const panTurner = panOn ? pickItem("turner", 214, 92, 1.15, 250, 122, true) : "";
+  const pan = `
+    <rect x="150" y="190" width="170" height="24" fill="#A9713F"/>
+    <g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round" fill="none">
+      <path d="M200 152h104l-8 24a20 20 0 01-19 12h-50a20 20 0 01-19-12z" fill="#6E7B87"/>
+      <ellipse cx="252" cy="152" rx="52" ry="15" fill="#4E5A63"/>
+      ${panPatty}
+      <ellipse cx="252" cy="152" rx="52" ry="15" fill="none"/>
+      <rect x="146" y="146" width="58" height="12" rx="6" fill="#8A5A34"/>
+      <rect x="196" y="186" width="112" height="10" rx="5" fill="#8A939B"/>
+    </g>${panTurner}`;
+
+  /* --- ケチャップ（テーブルの よこ） --- */
+  const ketchup = `<g class="pickTarget" data-id="ketchup">
+      ${iconGroup("ketchup", 230, 232, 1.35)}
+      <circle cx="273" cy="276" r="38" fill="#FFF" opacity="0"/></g>`;
+
+  /* --- テーブルの おさら --- */
+  let dish = "";
+  if(d.plate){
+    const patty = d.patty ? `
+      <ellipse cx="94" cy="276" rx="52" ry="21" fill="#6E4222" stroke="#5A4632" stroke-width="3.6"/>
+      <ellipse cx="94" cy="268" rx="52" ry="21" fill="#96602F" stroke="#5A4632" stroke-width="3.6"/>
+      <path d="M72 262l10 8M96 258l10 8" stroke="#5A3A20" stroke-width="3.4"/>` : "";
+    const sauce = d.sauce>0 ? `<path d="M${60-d.sauce*6} 266q${34+d.sauce*6}-14 ${68+d.sauce*12} 0
+        q-${34+d.sauce*6} 14 -${68+d.sauce*12} 0z" fill="#E24B4B"
+        stroke="#5A4632" stroke-width="3"/>` : "";
+    const fork = d.fork ? `<g transform="translate(190 252) rotate(12)"
+        stroke="#5A4632" stroke-width="3" stroke-linejoin="round">
+        <path d="M-7 0v-14M0 0v-14M7 0v-14" stroke-width="2.8"/>
+        <path d="M-9 0h18v3a8 8 0 01-5 7v28h-8v-28a8 8 0 01-5-7z" fill="#DDE6EA"/></g>` : "";
+    dish = `
+      <g stroke="#5A4632" stroke-width="3.6">
+        <ellipse cx="94" cy="274" rx="80" ry="30" fill="#FFF6E0"/>
+        <ellipse cx="94" cy="271" rx="64" ry="22" fill="#F6EEDA" stroke="none"/>
+      </g>${patty}${sauce}${fork}`;
+  }
+
+  const hint = (x,y,w,h) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="14"
+      fill="none" stroke="#FF9EB5" stroke-width="3.4" stroke-dasharray="9 13" opacity=".5">
+      <animate attributeName="opacity" values=".18;.7;.18" dur="2.2s" repeatCount="indefinite"/></rect>`;
+  const tap = (f,x,y,w,h) => (open===f && !st.need.includes(f)) ? "" :
+    hint(x,y,w,h) + `<rect class="furniTarget" data-f="${f}" x="${x}" y="${y}"
+      width="${w}" height="${h}" fill="#FFF" opacity="0"/>`;
+  const targets = state.act ? "" :
+    tap("cupboard",6,22,136,158) + tap("pan",190,132,124,62) + hint(236,238,74,76);
+
+  return `<svg viewBox="0 0 320 340" preserveAspectRatio="xMidYMid meet">
+    <rect width="320" height="340" fill="#FFF1D6"/>
+    ${cupboard}${pan}
+    <g stroke="#5A4632" stroke-width="3.4" stroke-linejoin="round" fill="none">
+      <rect x="0" y="214" width="320" height="126" fill="#C98F55" stroke="none"/>
+      <rect x="0" y="204" width="320" height="12" rx="6" fill="#A9713F" stroke="none"/>
+      <path d="M0 204h320" stroke-width="3"/>
+      <rect x="10" y="226" width="176" height="94" rx="16" fill="#FFD9E2"/>
+    </g>
+    ${dish}${ketchup}${targets}
+  </svg>`;
+}
+
+/* ---------------------------------------------------------------
+   6. がめんの こうしん
+   --------------------------------------------------------------- */
+const $ = s=>document.querySelector(s);
+const sceneEl = $("#scene"), trayEl = $("#tray"), bubbleEl = $("#bubble"), overlay = $("#overlay");
+
+function drawLeaves(){
+  $("#leafbar").innerHTML = STAGES.map((s,i)=>
+    `<span class="leaf ${i<stageIdx?'on':''}">${ART.leaf}</span>`).join("");
+}
+
+const needEl = document.querySelector("#needbar");
+
+/* つかう ざいりょうを うえに ならべる */
+function drawNeedbar(){
+  const st = currentStep();
+  const show = st.need.length > 1 && STAGES[stageIdx].scene !== "shop";
+  needEl.style.display = show ? "flex" : "none";
+  if(!show){ needEl.innerHTML = ""; return; }
+  const total = st.repeat || 1;
+  needEl.innerHTML = `<b>${st.listTitle || "つかう<br>もの"}</b>` + st.need.map(id=>{
+    const got = (hits[id]||0) >= total;
+    return `<span class="${got?"got":""}">${ART[id]}${LABEL[id]}</span>`;
+  }).join("");
+}
+
+function drawScene(){
+  const sc = STAGES[stageIdx].scene;
+  sceneEl.innerHTML = (state.act && state.act.mode === "chop") ? sceneChop()
+    : sc==="shop" ? sceneShop()
+    : sc==="kitchen" ? sceneKitchen()
+    : sc==="oven" ? sceneOven()
+    : sc==="serve" ? sceneServe() : sceneTable();
+  state.openAnim = false;
+  drawNeedbar();
+}
+
+function currentStep(){ return STAGES[stageIdx].steps[stepIdx]; }
+
+function drawStep(){
+  const st = currentStep();
+  const order = st.shuffle ? shuffled(st.tray) : st.tray;
+  bubbleEl.textContent = st.say;
+  say(st.say);
+  trayEl.style.display = st.tray.length ? "grid" : "none";
+  trayEl.classList.remove("busy");
+  trayEl.style.gridTemplateColumns = `repeat(${st.tray.length>6?4:3},1fr)`;
+  trayEl.innerHTML = order.map(id=>{
+    const need = st.need.includes(id);
+    const total = need ? (st.repeat||1) : 0;
+    const done = need && (hits[id]||0) >= total;
+    return `<button class="card ${done?'done':''}" data-id="${id}">
+      ${ART[id]}<span>${LABEL[id]}</span></button>`;
+  }).join("");
+  drawScene();
+  drawLeaves();
+}
+
+/* ---------------------------------------------------------------
+   7. タップの しょり
+   --------------------------------------------------------------- */
+function sparkle(x,y){
+  for(let i=0;i<7;i++){
+    const s = document.createElement("div");
+    s.className = "spark";
+    s.textContent = ["✨","⭐️","💛"][i%3];
+    s.style.left = x+"px"; s.style.top = y+"px";
+    s.style.setProperty("--dx",(Math.random()*160-80)+"px");
+    s.style.setProperty("--dy",(-Math.random()*120-30)+"px");
+    document.body.appendChild(s);
+    setTimeout(()=>s.remove(),820);
+  }
+}
+
+function fly(cardEl){
+  const a = cardEl.getBoundingClientRect(), b = sceneEl.getBoundingClientRect();
+  const g = document.createElement("div");
+  g.className = "ghost";
+  g.innerHTML = cardEl.querySelector("svg").outerHTML;
+  Object.assign(g.style,{left:a.left+"px",top:a.top+"px",width:a.width+"px",height:a.height+"px"});
+  document.body.appendChild(g);
+  requestAnimationFrame(()=>{
+    const dx = (b.left+b.width*0.55) - (a.left+a.width/2);
+    const dy = (b.top+b.height*0.6) - (a.top+a.height/2);
+    g.style.transform = `translate(${dx}px,${dy}px) scale(.35) rotate(25deg)`;
+    g.style.opacity = ".15";
+  });
+  setTimeout(()=>g.remove(),600);
+}
+
+/* せいかいの ときの きょうつう しょり */
+function registerHit(id, opt){
+  opt = opt || {};
+  const st = currentStep();
+  const card = trayEl.querySelector('.card[data-id="'+id+'"]');
+  const total = st.repeat || 1;
+
+  hits[id] = (hits[id]||0) + 1;
+  st.hit && st.hit(id);
+  sndGood();
+  if(card && opt.fly !== false) fly(card);
+  if(opt.sparkAt) sparkle(opt.sparkAt[0], opt.sparkAt[1]);
+  else if(card){ const r = card.getBoundingClientRect(); sparkle(r.left + r.width/2, r.top); }
+  drawScene();
+
+  if(hits[id] >= total){ card && card.classList.add("done"); }
+  else { bubbleEl.textContent = `あと ${total - hits[id]} かい！`; return; }
+
+  const finished = st.need.every(n => (hits[n]||0) >= total);
+  if(!finished){
+    const p = PRAISE[Math.floor(Math.random()*PRAISE.length)];
+    bubbleEl.textContent = p + " つぎも いこう！";
+    say(p);
+    return;
+  }
+
+  /* ステップ クリア */
+  busy = true;
+  if(st.wait){
+    bubbleEl.textContent = st.waitSay || "…";
+    say(st.waitSay || "");
+    drawScene();
+    setTimeout(()=>{ st.after && st.after(); busy=false; nextStep(); }, st.wait);
+  }else{
+    st.after && st.after();
+    const p = PRAISE[Math.floor(Math.random()*PRAISE.length)];
+    bubbleEl.textContent = p;
+    say(p);
+    setTimeout(()=>{ busy=false; nextStep(); }, 900);
+  }
+}
+
+/* まちがえた ときの しょり */
+function nudge(card, st, id){
+  sndBad();
+  if(card){ card.classList.remove("shake"); void card.offsetWidth; card.classList.add("shake"); }
+  const msg = (st.wrong && st.wrong[id]) || NUDGE[Math.floor(Math.random()*NUDGE.length)];
+  bubbleEl.textContent = msg;
+  bubbleEl.classList.remove("wiggle"); void bubbleEl.offsetWidth; bubbleEl.classList.add("wiggle");
+  say(msg);
+  setTimeout(()=>{ if(!busy && !state.act) bubbleEl.textContent = st.say; },1800);
+}
+
+/* --- どうぐトレイを タップ --- */
+trayEl.addEventListener("click", e=>{
+  const card = e.target.closest(".card");
+  if(!card || busy || state.act) return;
+  const id = card.dataset.id, st = currentStep();
+
+  if(!st.need.includes(id)){ nudge(card, st, id); return; }
+
+  /* まないたに のせる / おたまを もつ */
+  if(st.mode === "chop" || st.mode === "stir"){
+    const total = st.mode === "chop" ? (st.chops||3) : (st.times||3);
+    state.act = { mode:st.mode, id:id, cuts:0, count:0, total:total, anim:false };
+    st.hold && st.hold(id);
+    card.classList.add("done");
+    trayEl.classList.add("busy");
+    beep([660,880],.1);
+    fly(card);
+    drawScene();
+    const msg = st.mode === "chop"
+      ? `${LABEL[id]}を ${total}かい タップして トントン！`
+      : stirPrompt(st, total);
+    bubbleEl.textContent = msg; say(msg);
+    return;
+  }
+
+  registerHit(id);
+});
+
+/* --- シーンを タップ --- */
+sceneEl.addEventListener("click", e=>{
+  if(busy) return;
+  const st = currentStep(), act = state.act;
+
+  /* まないたで きる */
+  if(act && act.mode === "chop"){
+    if(!e.target.closest(".chopTarget")) return;
+    act.cuts++; act.anim = true;
+    beep([520,180],.07,"square");
+    drawScene(); act.anim = false;
+    const left = act.total - act.cuts;
+    if(left > 0){ bubbleEl.textContent = `トントン！ あと ${left}かい`; return; }
+    finishAct(`${LABEL[act.id]} きれたね！`);
+    return;
+  }
+
+  /* なべで まぜる */
+  if(act && act.mode === "stir"){
+    if(!e.target.closest(".stirTarget")) return;
+    act.count++; act.anim = true;
+    beep([300,430],.09);
+    drawScene(); act.anim = false;
+    const left = act.total - act.count;
+    if(left > 0){ bubbleEl.textContent = `ぐるぐる！ あと ${left}かい`; return; }
+    finishAct("よく まざったね！");
+    return;
+  }
+
+  /* かぐ・かでんを あける */
+  const f = e.target.closest(".furniTarget");
+  if(f){
+    if(st.need.includes(f.dataset.f)){          /* オーブンなど かぐ じたいが せいかい */
+      const rf = f.getBoundingClientRect();
+      state.open = null;
+      registerHit(f.dataset.f, { fly:false, sparkAt:[rf.left + rf.width/2, rf.top + rf.height/2] });
+      return;
+    }
+    state.open = f.dataset.f;
+    state.openAnim = true;
+    beep([440,620],.12);
+    drawScene();
+    return;
+  }
+
+  /* なかの ものを えらぶ */
+  const pick = e.target.closest(".pickTarget");
+  if(pick){
+    const id = pick.dataset.id;
+    if(!st.need.includes(id)){ nudge(null, st, id); return; }
+    const total = st.repeat || 1;
+    const r = pick.getBoundingClientRect();
+    if((hits[id]||0) + 1 >= total) state.open = null;
+    registerHit(id, { fly:false, sparkAt:[r.left + r.width/2, r.top + r.height/2] });
+  }
+});
+
+/* きる・まぜるが おわった ときの しめくくり */
+function finishAct(msg){
+  const act = state.act;
+  busy = true;
+  bubbleEl.textContent = msg; say(msg);
+  const r = sceneEl.getBoundingClientRect();
+  setTimeout(()=>{
+    const id = act.id;
+    state.act = null;
+    trayEl.classList.remove("busy");
+    busy = false;
+    registerHit(id, { fly:false, sparkAt:[r.left + r.width/2, r.top + r.height*0.55] });
+  }, 800);
+}
+
+function nextStep(){
+  hits = {};
+  stepIdx++;
+  if(stepIdx < STAGES[stageIdx].steps.length){ drawStep(); return; }
+  stageClear();
+}
+
+/* ---------------------------------------------------------------
+   8. オーバーレイ（タイトル・ステージ・クリア）
+   --------------------------------------------------------------- */
+function showOverlay(html){ overlay.innerHTML = html; overlay.classList.remove("hide"); }
+function hideOverlay(){ overlay.classList.add("hide"); }
+
+function title(){
+  resetState();
+  drawLeaves(); trayEl.innerHTML = ""; sceneEl.innerHTML = "";
+  bubbleEl.textContent = "きょうは なにを つくろうかな？";
+  showOverlay(`
+    <div style="width:min(46vw,165px)">${bearSVG()}</div>
+    <div class="plank">
+      <h1>おりょうりごっこ</h1>
+      <p>くまシェフと いっしょに<br>おりょうりを つくろう！<br>なにを つくる？</p>
+    </div>
+    <div class="row">
+      <button class="big" id="goCurry">🍛 カレーライス</button>
+      <button class="big green" id="goGratin">🧀 グラタン</button>
+      <button class="big wood" id="goHamburg">🍽️ ハンバーグ</button>
+    </div>`);
+  $("#goCurry").onclick  = ()=>{ beep([523,784]); pickRecipe("curry"); };
+  $("#goGratin").onclick = ()=>{ beep([523,784]); pickRecipe("gratin"); };
+  $("#goHamburg").onclick = ()=>{ beep([523,784]); pickRecipe("hamburg"); };
+}
+
+function pickRecipe(key){
+  recipeKey = key;
+  STAGES = RECIPES[key].stages;
+  resetState();
+  startStage(0);
+}
+
+function startStage(i){
+  stageIdx = i; stepIdx = 0; hits = {};
+  drawLeaves();
+  const s = STAGES[i];
+  showOverlay(`
+    <div class="plank">
+      <h2>${s.emoji} ${s.intro}</h2>
+      <p>${s.introText}</p>
+    </div>
+    <button class="big green" id="go">はじめる</button>`);
+  say(s.intro + "。" + s.introText);
+  $("#go").onclick = ()=>{ beep([659,880]); hideOverlay(); drawStep(); };
+}
+
+function stageClear(){
+  sndClear();
+  const s = STAGES[stageIdx];
+  if(stageIdx < STAGES.length-1){
+    showOverlay(`
+      <div style="width:min(40vw,150px)">${bearSVG()}</div>
+      <div class="plank"><h2>${s.emoji} ${s.name} クリア！</h2><p>${s.clear}</p></div>
+      <button class="big green" id="go">つぎへ すすむ</button>`);
+    say(s.name + "クリア！ " + s.clear);
+    $("#go").onclick = ()=>{ beep([659,880]); startStage(stageIdx+1); };
+  }else{
+    stageIdx = STAGES.length; drawLeaves(); stageIdx = STAGES.length-1;
+    showOverlay(`
+      <div style="width:min(46vw,170px)">${bearSVG()}</div>
+      <div class="plank">
+        <h1>できあがり！</h1>
+        <p>おいしそうな ${RECIPES[recipeKey].name}の かんせい！<br>くまシェフが よろこんで いるよ 🎉</p>
+      </div>
+      <div style="width:min(60vw,230px);background:#FFF6E0;border-radius:20px;padding:6px">
+        ${RECIPES[recipeKey].finish()}
+      </div>
+      <div class="row">
+        <button class="big small green" id="again">もういちど</button>
+        <button class="big small" id="home">さいしょへ</button>
+      </div>`);
+    say("できあがり！ いただきまーす！");
+    $("#again").onclick = ()=>{ beep([523,784]); pickRecipe(recipeKey); };
+    $("#home").onclick  = ()=>{ beep([440,660]); title(); };
+  }
+}
+
+function finishedHamburg(){
+  return `<svg viewBox="0 0 320 150" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="160" cy="94" rx="120" ry="42" fill="#FFF6E0" stroke="#5A4632" stroke-width="4"/>
+    <ellipse cx="160" cy="90" rx="98" ry="32" fill="#F6EEDA" stroke="none"/>
+    <ellipse cx="150" cy="88" rx="62" ry="26" fill="#6E4222" stroke="#5A4632" stroke-width="4"/>
+    <ellipse cx="150" cy="80" rx="62" ry="26" fill="#96602F" stroke="#5A4632" stroke-width="4"/>
+    <path d="M104 78q46-16 92 0q-46 16-92 0z" fill="#E24B4B" stroke="#5A4632" stroke-width="3"/>
+    <circle cx="236" cy="92" r="12" fill="#8ED45C" stroke="#5A4632" stroke-width="3"/>
+    <circle cx="252" cy="82" r="9" fill="#5FA83C" stroke="#5A4632" stroke-width="3"/>
+    <g stroke="#C9D6DE" stroke-width="6" fill="none" stroke-linecap="round" opacity=".9">
+      <path d="M120 42c-8-10 8-15 0-25"/><path d="M186 38c-8-10 8-15 0-25"/></g>
+    <text x="40" y="36" font-size="26">✨</text><text x="262" y="34" font-size="22">✨</text>
+  </svg>`;
+}
+
+function finishedGratin(){
+  return `<svg viewBox="0 0 320 150" xmlns="http://www.w3.org/2000/svg">
+    <path d="M46 76H26a10 10 0 000 20h20M274 76h20a10 10 0 010 20h-20"
+      fill="#FFF6E0" stroke="#5A4632" stroke-width="4"/>
+    <ellipse cx="160" cy="92" rx="118" ry="40" fill="#FFF6E0" stroke="#5A4632" stroke-width="4"/>
+    <path d="M62 90a98 36 0 01196 0z" fill="#E8B15C" stroke="#5A4632" stroke-width="4"/>
+    <circle cx="112" cy="70" r="10" fill="#C97F35" stroke="none"/>
+    <circle cx="168" cy="62" r="8" fill="#C97F35" stroke="none"/>
+    <circle cx="214" cy="74" r="9" fill="#C97F35" stroke="none"/>
+    <g stroke="#C9D6DE" stroke-width="6" fill="none" stroke-linecap="round" opacity=".9">
+      <path d="M126 40c-8-10 8-15 0-25"/><path d="M196 36c-8-10 8-15 0-25"/></g>
+    <text x="40" y="36" font-size="26">✨</text><text x="256" y="32" font-size="22">✨</text>
+  </svg>`;
+}
+
+function finishedCurry(){
+  return `<svg viewBox="0 0 320 150" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="160" cy="90" rx="120" ry="42" fill="#FFF6E0" stroke="#5A4632" stroke-width="4"/>
+    <ellipse cx="160" cy="86" rx="98" ry="32" fill="#F6EEDA" stroke="none"/>
+    <path d="M90 88a56 26 0 01112 0z" fill="#FFFDF5" stroke="#5A4632" stroke-width="4"/>
+    <path d="M150 88a62 26 0 01118 0z" fill="#B4651E" stroke="#5A4632" stroke-width="4"/>
+    <circle cx="196" cy="72" r="8" fill="#F5893C" stroke="#5A4632" stroke-width="3"/>
+    <circle cx="222" cy="80" r="8" fill="#D9A566" stroke="#5A4632" stroke-width="3"/>
+    <circle cx="246" cy="70" r="7" fill="#FFB3C0" stroke="#5A4632" stroke-width="3"/>
+    <text x="52" y="34" font-size="26">✨</text><text x="252" y="30" font-size="22">✨</text>
+  </svg>`;
+}
+
+/* ---------------------------------------------------------------
+   9. ボタン と きどう
+   --------------------------------------------------------------- */
+$("#btnVoice").onclick = e=>{
+  voiceOn = !voiceOn;
+  e.currentTarget.textContent = voiceOn ? "🔈" : "🔇";
+  e.currentTarget.classList.toggle("off", !voiceOn);
+  if(!voiceOn && window.speechSynthesis) speechSynthesis.cancel();
+  else beep([784]);
+};
+$("#btnHome").onclick = ()=>{ beep([440,330]); title(); };
+$("#bubble").onclick = ()=>{ say(bubbleEl.textContent); };
+
+$("#bearBox").innerHTML = bearSVG();
+title();
+</script>
+</body>
+</html>
