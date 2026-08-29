@@ -75,6 +75,7 @@ label{font-size:14px;font-weight:700;display:inline-flex;gap:6px;align-items:cen
     </div>
     <div class="row" style="margin-top:10px">
       <button id="mic">🎤 マイクを つかう</button>
+      <button class="ghost" id="micOff" disabled>🔇 マイクを オフ</button>
       <span class="meta" id="micState">まだ つかっていません</span>
     </div>
   </div>
@@ -235,10 +236,32 @@ $("#mic").onclick = async ()=>{
     srcNode.connect(proc); proc.connect(mute); mute.connect(actx.destination);
     $("#micState").textContent = "つかえます！（" + actx.sampleRate + "Hz）";
     $("#recBtn").disabled = false;
-    setInterval(()=>{ $("#level").style.width = Math.min(100, level*160) + "%"; }, 100);
+    $("#micOff").disabled = false;
+    $("#mic").disabled = true;
+    if(!window.__levelTimer)
+      window.__levelTimer = setInterval(()=>{
+        $("#level").style.width = Math.min(100, (stream ? level : 0)*160) + "%";
+      }, 100);
   }catch(err){
     $("#micState").textContent = "マイクが つかえません（" + err.name + "）";
   }
+};
+
+/* マイクを とめる（ろくおんを おやすみする とき） */
+$("#micOff").onclick = ()=>{
+  recording = false; buffers = []; level = 0;
+  $("#recBtn").classList.remove("on");
+  $("#recBtn").textContent = "● ろくおん";
+  try{ if(proc) proc.disconnect(); }catch(e){}
+  try{ if(srcNode) srcNode.disconnect(); }catch(e){}
+  try{ if(stream) stream.getTracks().forEach(t=>t.stop()); }catch(e){}
+  try{ if(actx) actx.suspend(); }catch(e){}
+  stream = null; srcNode = null; proc = null; actx = null;
+  $("#level").style.width = "0%";
+  $("#micState").textContent = "マイクを とめました";
+  $("#recBtn").disabled = true;
+  $("#micOff").disabled = true;
+  $("#mic").disabled = false;
 };
 
 /* --- おとの しょり --- */
@@ -291,7 +314,7 @@ function encodeWav(a, rate){
 }
 
 function toggleRec(){
-  if(!actx) return;
+  if(!actx || !stream) return;
   if(recording){                                   /* ていし */
     recording = false;
     $("#recBtn").classList.remove("on");

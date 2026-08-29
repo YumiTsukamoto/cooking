@@ -832,10 +832,13 @@ const sndClear = ()=>beep([523,659,784,1046],.16);
    なければ ブラウザの よみあげ（きかいおんせい）に なります。
    ろくおんだけを つかいたい ときは VOICE_ON_MISSING を "silent" に してください。 */
 const VOICE_ON_MISSING = "tts";                  /* "tts" または "silent" */
-const VOICE_EXT = ["m4a","mp3","webm","wav"];    /* この じゅんばんで さがします */
+const VOICE_EXT = ["wav","m4a","mp3","webm"];    /* この じゅんばんで さがします */
 const voiceCache = {};
-let curAudio = null;
+let curAudio = null, curSrc = null;
+const inlineBuf = {};
 /* voice/on.txt が あれば ろくおんファイルを さがします（むだな つうしんを ふせぐ） */
+/* プレビュー用に base64 で うめこまれた こえ（ふつうは から） */
+const VOICE_INLINE = (typeof window !== "undefined" && window.VOICE_INLINE) || {};
 let voiceFolder = false;
 try{ fetch("voice/on.txt", {cache:"no-store"}).then(r=>{ voiceFolder = r.ok; }).catch(()=>{}); }catch(e){}
 
@@ -863,12 +866,37 @@ function tts(text){
   }catch(e){}
 }
 
+/* うめこみの こえ（Web Audio で ならす。data: が ブロックされる ばしょでも OK） */
+function playInline(id, text){
+  try{
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    if(actx.state === "suspended") actx.resume();
+    if(inlineBuf[id]){ startBuf(inlineBuf[id]); return; }
+    const b64 = VOICE_INLINE[id].split(",")[1];
+    const bin = atob(b64), u8 = new Uint8Array(bin.length);
+    for(let i=0;i<bin.length;i++) u8[i] = bin.charCodeAt(i);
+    actx.decodeAudioData(u8.buffer,
+      buf=>{ inlineBuf[id] = buf; startBuf(buf); },
+      ()=>{ if(VOICE_ON_MISSING === "tts") tts(text); });
+  }catch(e){ if(VOICE_ON_MISSING === "tts") tts(text); }
+}
+function startBuf(buf){
+  if(curSrc){ try{ curSrc.stop(); }catch(e){} }
+  const s = actx.createBufferSource();
+  s.buffer = buf;
+  s.connect(actx.destination);
+  s.start();
+  curSrc = s;
+}
+
 function say(text){
   if(!voiceOn || !text) return;
   if(curAudio){ try{ curAudio.pause(); }catch(e){} curAudio = null; }
+  if(curSrc){ try{ curSrc.stop(); }catch(e){} curSrc = null; }
   if(window.speechSynthesis) speechSynthesis.cancel();
 
   const id = voiceKey(text);
+  if(VOICE_INLINE[id]){ playInline(id, text); return; }
   if(!voiceFolder || voiceCache[id] === "none"){
     if(VOICE_ON_MISSING === "tts") tts(text);
     return;
